@@ -3,55 +3,58 @@
 \usepackage{sbc-template}
 \usepackage{graphicx,url}
 \usepackage[utf8]{inputenc}
-\usepackage[brazil]{babel}
-\usepackage[latin1]{inputenc}  
+%\usepackage[brazil]{babel}
+%\usepackage[latin1]{inputenc}
 
+% 19/06: http://sbrt.org.br/sbrt2020/cfp.html#cfp
+% 01/07: http://voyager.ce.fit.ac.jp/conf/3pgcic/2020/
+% 10/07: http://sbseg.sbc.org.br/2020/pt/chamadas/principal.html
+% 14/07: http://conferences.cis.umac.mo/pdcat20/
      
+\usepackage{xspace}
+\newcommand{\FC}{\emph{FreeTopics}\xspace}
+
 \sloppy
 
-\title{Instructions for Authors of SBC Conferences\\ Papers and Abstracts}
+\title{\FC: Peer-to-Peer Content Dissemination}
 
-\author{Luciana P. Nedel\inst{1}, Rafael H. Bordini\inst{2}, Flávio Rech
-  Wagner\inst{1}, Jomi F. Hübner\inst{3} }
-
-
-\address{Instituto de Informática -- Universidade Federal do Rio Grande do Sul
-  (UFRGS)\\
-  Caixa Postal 15.064 -- 91.501-970 -- Porto Alegre -- RS -- Brazil
-\nextinstitute
-  Department of Computer Science -- University of Durham\\
-  Durham, U.K.
-\nextinstitute
-  Departamento de Sistemas e Computação\\
-  Universidade Regional de Blumenal (FURB) -- Blumenau, SC -- Brazil
-  \email{\{nedel,flavio\}@inf.ufrgs.br, R.Bordini@durham.ac.uk,
-  jomi@inf.furb.br}
-}
+\author{Anonymous Author\inst{1}}
+\address{Anonymous Institute}
 
 \begin{document} 
 
 \maketitle
 
 \begin{abstract}
-  This meta-paper describes the style to be used in articles and short papers
-  for SBC conferences. For papers in English, you should add just an abstract
-  while for the papers in Portuguese, we also ask for an abstract in
-  Portuguese (``resumo''). In both cases, abstracts should not have more than
-  10 lines and must be in the first page of the paper.
+We propose the design of \FC, a fully peer-to-peer protocol for content
+dissemination.
+%
+A user posts a message to a topic and all other users subscribed to the same
+topic eventually receive the message.
+Posts within a topic form a Merkle tree of dependency, which is immune to
+modifications and is disseminated among peers through gossip communication.
+%
+\FC is designed around a minimal API that supports multiple flavors of public
+and private communication among groups and individuals.
+For instance, it is possible to model private e-mail conversations between two
+colleagues as well as public forum discussions among strangers (possibly
+malicious).
+%
+\FC also proposes a new decentralized reputation system to combat abuse, such
+as SPAM and fake news.
+Authors require previous reputation to post new content, which can still be
+removed if the ratio between likes and dislikes is too negative.
+%
+We evaluate the performance of the protocol in multiple scenarios and discuss
+how the reputation system can preserve the quality of the content.
 \end{abstract}
      
-\begin{resumo} 
-  Este meta-artigo descreve o estilo a ser usado na confecção de artigos e
-  resumos de artigos para publicação nos anais das conferências organizadas
-  pela SBC. É solicitada a escrita de resumo e abstract apenas para os artigos
-  escritos em português. Artigos em inglês deverão apresentar apenas abstract.
-  Nos dois casos, o autor deve tomar cuidado para que o resumo (e o abstract)
-  não ultrapassem 10 linhas cada, sendo que ambos devem estar na primeira
-  página do artigo.
-\end{resumo}
+%\begin{resumo}
+%\end{resumo}
 
+\section{Introduction}
 
-\section{General Information}
+\FC xxx
 
 All full papers and posters (short papers) submitted to some SBC conference,
 including any supporting documents, should be written in English or in
