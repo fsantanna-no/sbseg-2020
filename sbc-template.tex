@@ -3,7 +3,8 @@
 \usepackage{sbc-template}
 \usepackage{graphicx,url}
 \usepackage[utf8]{inputenc}
-%\usepackage[brazil]{babel}
+\usepackage[brazil]{babel}
+\usepackage{verbatim}
 %\usepackage[latin1]{inputenc}
 
 % 19/06: http://sbrt.org.br/sbrt2020/cfp.html#cfp
@@ -12,7 +13,7 @@
 % 14/07: http://conferences.cis.umac.mo/pdcat20/
      
 \usepackage{xspace}
-\newcommand{\FC} {\emph{FreeTopics}\xspace}
+\newcommand{\FC} {Freechains\xspace}
 
 \newcommand{\Xon} {$1{\rightarrow}N$\xspace}
 \newcommand{\Xno} {$1{\leftarrow}N$\xspace}
@@ -22,152 +23,547 @@
 
 \sloppy
 
-\title{\FC: Peer-to-Peer Content Dissemination}
+\begin{comment}
+http://sbseg.sbc.org.br/2020/pt/chamadas/ferramentas.html
 
-\author{Anonymous Author\inst{1}}
-\address{Anonymous Institute}
+A survey of peer-to-peer content distribution technologies.
+
+- Anonimização e privacidade
+- Controle de acesso, autenticação, biometria, confiança e gestão de identidades
+- Criptografia e criptoanálise: algoritmos, protocolos e aplicações
+- Criptomoedas e mecanismos de consenso distribuído
+
+- Descrição e motivação do problema resolvido pela ferramenta;
+- Arquitetura da solução e descrição das principais funcionalidades;
+- URL onde a ferramenta está disponível (o código-fonte com a licença deve estar presente nessa URL, não apenas o binário);
+- URL da documentação da ferramenta, incluindo informações e requisitos para instalação;
+- Descrição da demonstração planejada para o Salão de Ferramentas, informando equipamentos necessários para tal;
+- (opcional) URL com um vídeo explicando a instalação e as funcionalidades da ferramenta.
+
+- Até 8 páginas
+
+    - public key cryptography to deal with identities, confidentiality and
+\end{comment}
+
+
+\title{\FC: Disseminação de Conteúdo Peer-to-Peer}
+
+\author{Francisco Sant'Anna\inst{1}}
+\address{UERJ - Departamento de Ciência da Computação}
 
 \begin{document} 
 
 \maketitle
 
 \begin{abstract}
-We propose the design of \FC, a fully peer-to-peer protocol for content
-dissemination.
-%
-A user posts a message to a topic and all other users subscribed to the same
-topic eventually receive the message.
-Posts within a topic form a Merkle tree of dependency, which is immune to
-modifications and is disseminated among peers through gossip communication.
-%
-\FC is designed around a minimal API that supports multiple flavors of public
-and private communication among groups and individuals.
-For instance, it is possible to model private e-mail conversations between two
-colleagues as well as public forum discussions among strangers (possibly
-malicious).
-%
-\FC also proposes a new decentralized reputation system to combat abuse, such
-as SPAM and fake news.
-Authors require previous reputation to post new content, which can still be
-removed if the ratio between likes and dislikes is too negative.
-%
-We evaluate the performance of the protocol in multiple scenarios and discuss
-how the reputation system can preserve the quality of the content.
+O \FC é um sistema peer-to-peer para disseminação de conteúdo: um
+usuário posta uma mensagem em um tópico e seus assinantes eventualmente recebem
+a mensagem.
+As postagens são estruturadas em um grafo direcionado acíclico criptográfico
+que é imune a modificações (\emph{Merkle DAG}).
+O grafo é disseminado entre os pares da rede por \emph{gossip} e de maneira não
+estruturada.
+O \FC suporta múltiplos arranjos de disseminação pública e privada entre grupos
+e indivíduos, sendo possível modelar desde conversas privadas por e-mail, até
+debates entre desconhecidos em fóruns públicos.
+Cada tópico público conta com um sistema descentralizado de reputação para
+combater abusos, tais como SPAM e notícias falsas.
+%Autores precisam de reputação prévia para postar novo conteúdo, que ainda assim
+%pode ser removido se a proporção entre \emph{likes \& dislikes} for muito baixa.
+O \FC executa como um \emph{daemon} no pares da rede e permite
+interações pela linha de comando ou por um \emph{app} para Android.
 \end{abstract}
      
 %\begin{resumo}
 %\end{resumo}
 
-\section{Introduction}
+\section{Introdução}
 
-Despite the continuous increase in access and usage of the Internet over the
-years, the available content is becoming more and more controlled by few
-companies~\cite{internet.fixing}.
-By content, we mean any kind of information and interaction on the Internet,
-such as e-mail exchanges, news consumption, social media interactions, and even
-backups of documents.
-These few companies serve as intermediates between content producers and
-consumers, but typically do not produce any content.
-On the one hand, they are preferred for several benefits they offer, such as
-    attractive and convenient user interfaces,
-    free storage and connectivity,
-    good bandwidth performance, and
-    trust from users to act on their behalf.
-On the other hand, these companies concentrate more power than their services
-require to operate, since they
-    control all our public information,
-    collect our private data our awareness,
-    decide a large part of what we consume (based on arbitrary algorithms),
-    require connectivity for information that we already consumed, and
-    obstruct data portability with proprietary protocols and data formats.
+Apesar do crescimento contínuo da Internet ao longo dos anos, o seu conteúdo
+disponível está cada vez mais sob o controle de poucas
+empresas~\cite{internet.fixing}.
+Consideramos como conteúdo qualquer tipo de informação ou interação na
+Internet, tais como trocas de e-mails, consumo de notícias, interações em redes
+sociais, ou até mesmo backup de documentos.
+%
+As empresas provedoras de conteúdo somente auxiliam o acesso entre seus
+usuários, mas tipicamente não criam conteúdo original.
+Por um lado, elas oferecem funcionalidades essenciais, tais como interfaces
+amigáveis, armazenamento grátis e conectividade permanente.
+Por outro lado, essas empresas concentram mais poder do que o necessário para
+operarem, uma vez que mantém nossos dados sob controle, coletam informações
+privadas, decidem o que consumimos com base em algoritmos arbitrários, exigem
+conectividade mesmo para informações já consumidas, e ainda dificultam a
+portabilidade entre serviços através de formatos e protocolos proprietários.
 
-Peer-to-peer systems~\cite{TODO} offer an alternative to centralized services,
-removing intermediation and moving all network responsibilities to the end
-producers and consumers of content.
-There are many challenges that need to be addressed when the resources are
-scattered over the edges of the network:
-    how to consistently distribute and/or replicate all storage and
-    connectivity infrastructure;
-    how to connect producers and consumers with good performance;
-    how to deal with malicious peers in the network; and
-    how to invest in usability and interfaces without a business model.
+Sistemas de disseminação \emph{peer-to-peer}~\cite{p2p.survey} oferecem uma
+alternativa aos serviços centralizados, eliminando intermediários e movendo
+para os usuários finais toda a responsabilidade pela transferência,
+armazenamento, disponibilidade e validação do conteúdo disseminado.
+No entanto, há diversos novos desafios quando as responsabilidades pelo sistema
+estão espalhados nas bordas da rede:
+    como distribuir e replicar a infraestrutura de conectividade e
+    armazenamento;
+    como conectar usuários com boa performance;
+    como lidar com pares (\emph{peers}) maliciosos na rede;
+    e como investir na usabilidade do sistema sem um modelo de negócio.
 
-\newpage
-
-\FC is a peer-to-peer content dissemination system that aims to allow users to
-exchanges messages without any intermediate servers or central authority to
-control access, and without the need of trust among participants.
-A user posts a message to a topic and all other users subscribed to the same
-topic eventually receive the message.
-The first contribution of \FC is the design of a minimal protocol to support
-multiple arrangements of content dissemination:
+Neste trabalho, apresentamos o \emph{\FC} como uma ferramenta para a
+disseminação de conteúdo peer-to-peer sem a intermediação ou controle de acesso
+centralizado, e sem a necessidade de confiança entre seus usuários.
+No \FC, um usuário posta uma mensagem em um tópico, também chamado de
+cadeia, e todos os outros assinantes daquela cadeia eventualmente recebem a
+mensagem.
+O \FC propõe duas contribuições principais: (1) um protocolo mínimo para
+múltiplos arranjos de disseminação de conteúdo e (2) um sistema de reputação
+autônomo e descentralizado.
+%
+Sobre a primeira contribuição, o \FC possibilita diversos arranjos de
+disseminação de conteúdo entre seus usuários:
 %
 \begin{itemize}
-\item Arrangements \Xon and \Xno (public):
-    A public identity broadcasts content to an audience (\Xon) with optional
-    feedback (\Xno).
-    Examples are news sites, streaming services, and public profiles in social
-    media.
-\item Arrangements \Xoo, \Xnn, and \Xo (private):
-    Trusted peers exchange messages privately among them.
-    Communication can be between pairs (\Xoo), groups (\Xnn), and alone (\Xo,
-    with itself).
-    Examples are e-mails, family groups, and backups.
-\item Arrangement \Xnn (public):
-    Untrusted peers publicly communicate among them.
-    Examples are Q\&A forums, chats, and consumer-to-consumer sales.
+\item \textbf{Arranjos públicos \Xon e \Xno:}
+    Uma identidade pública (ex., pessoa ou organização) dissemina conteúdo para
+    um público alvo (\Xon) com feedback opcional (\Xno).
+    Exemplos são sites de notícias, serviços de streaming e perfis públicos em
+    redes sociais.
+\item \textbf{Arranjos privados \Xoo, \Xnn e \Xo:}
+    Grupos de confiança (ex., amigos ou familiares) trocam mensagens privadas
+    entre si.
+    A comunicação pode ser em pares (\Xoo), grupos (\Xnn) ou até mesmo
+    individuais (\Xo).
+    Exemplos são e-mails, grupos de família e backup de documentos.
+\item \textbf{Arranjos públicos \Xnn:}
+    Grupos heterogêneos se comunicam publicamente. Exemplos são fóruns de
+    perguntas e respostas, chats, e comércio eletrônico público.
 \end{itemize}
 %
-The protocol API are basically commands to \emph{join} a topic of interest,
-\emph{post} a message \emph{iterate} over topic messages, and \emph{get} a
-specific message.
+%A API do protocolo é composta basicamente de comandos para assinar cadeias de
+%interesse (\texttt{join}), postar novas mensagens (\texttt{post}), iterar sobre
+%mensagens existentes (\texttt{traverse}), e ler uma mensagem específica
+%(\texttt{get}).
 %
-The second contribution of \FC is an autonomous decentralized reputation system
-that tracks the quality of posts and authors inside each topic.
-The reputation systems aims to:
+Sobre a segunda contribuição, o sistema de reputação do \FC rege a qualidade
+das postagens e autores dentro de cada cadeia e tem os seguintes objetivos:
 %
 \begin{itemize}
-\item combat excess by restricting the number of posts;
-\item highlight content of quality with likes and dislikes; and
-\item combat SPAM, fake news, and illegal content by demanding reputation to
-      post and by removing posts when their likes/dislikes ratio is too
-      negative.
+\item Combater o excesso de conteúdo restringindo o número de postagens por autor.
+\item Destacar o conteúdo de qualidade com um mecanismo de \emph{likes \& dislikes}.
+\item Combater SPAM, notícias falsas e conteúdo ilegal demandando reputação
+      prévia de autores e removendo postagens com proporção muito baixa entre
+      \emph{likes \& dislikes}.
 \end{itemize}
+%
+O código fonte, documentação e vídeos introdutórios sobre o \FC estão
+disponíveis em \url{https://github.com/Freechains/README}.
 
-Limitations:
-    - no routing, external to the protocol
-    - no proof that reputation systems works
+%A Seção~\ref{sec.related} compara o \FC com outros sistemas de
+%disseminação de conteúdo.
+%A Seção~\ref{sec.basic} apresenta o funcionamento básico do \FC como
+%ferramenta.
+%A Seção~\ref{sec.conclusion} conclui o trabalho.
 
-In the rest of this paper, we...
-We evaluate the performance of the protocol in multiple scenarios and discuss
-how the reputation system can preserve the quality of the content.
+\section{Comparação com Outros Sistemas}
+\label{sec.related}
 
-Section~\ref{sec.freechains}
-Section~\ref{sec.evaluation}
-Section~\ref{sec.related}
-Section~\ref{sec.conclusion}
+Diversos sistemas oferecem disseminação de conteúdo de forma distribuída.
+Aqui nós consideramos \emph{middlewares publish-subscribe},
+\emph{protocolos federados} e \emph{sistemas peer-to-peer completos}.
 
-\section{Design of \FC}
+%\subsection{Middlewares Publish-Subscribe}
+
+Os middlewares publish-subscribe (aka \emph{message brokers}) auxiliam
+no desenvolvimento de aplicações descentralizadas ao desacoplar produtores
+(\emph{publishers}) e consumidores (\emph{subscribers}).
+Em vez de enviar as mensagens diretamente aos consumidores, os produtores as
+encaminham a um intermediário (broker) que mantém uma lista de assinantes
+(subscribers) que devem receber as mensagens~\cite{TODO}.
+Exemplos de sistemas pubsub incluem o \emph{XMPP}, \emph{AMQP}, \emph{WebSub} e
+\emph{ActivityPub}.
+Um aspecto chave em \emph{pubsubs} é que, embora produtor e consumidor se
+comuniquem sem conhecimento mútuo, os brokers ainda possuem um papel
+centralizador na rede.
+Eles são necessários para autenticar e validar as postagens, por exemplo, além
+de servirem as filas de mensagens que conectam produtores e consumidores.
+As filas são hospedadas em endereços previamente conhecidos (ex.,
+\url{amqp://user@domain/path}), o que impede uma arquitetura inteiramente
+distribuída.
+
+\begin{comment}
+Aumentar o número de servidores, como em pubsubs federados~\cite{TODO} não
+afeta o modelo fundamentalmente, uma vez que cada fila se mantém independente e
+serve as ações dos seus clientes isoladamente.
+A peça ausente na arquitetura pubsub para torná-la totalmente descentralizada é
+uma política para mesclar filas independentes, de modo que as localidades
+específicas dos brokers possa variar dinamicamente sem afetar o funcionamento
+do sistema.
+Os problemas de sincronizar os brokers de alguma maneira são similares aos que
+o \FC se propõe a resolver: como ordenar e relacionar mensagens em
+múltiplos servidores, como lidar com excesso de conteúdo e SPAM, como lidar com
+notícias falsas, conteúdo legal e etc.
+\end{comment}
+
+%\subsection{Protocolos e Aplicações Federadas}
+
+Em protocolos federados~\cite{TODO}, a identidade de um usuário ainda é
+atrelada a um servidor específico, mas os servidores podem se sincronizar para
+permitir a comunicação externa entre seus usuários.
+O serviço de e-mail (SMTP) é provavelmente o protocolo federado mais popular e
+permite que o usuário de um domínio troque mensagens com um usuário de outro
+domínios de maneira transparente.
+Mais recentemente, o \emph{Diaspora}, \emph{Matrix} e \emph{Mastodon} atenderam
+aos cenários de redes sociais, chats e \emph{microblogging} com arquiteturas
+federadas.
+Em sistemas federados, todo conteúdo poder ser gerenciado localmente em suas
+instâncias e a sincronização externa é um passo em separado, mas que não é
+necessário para o funcionamento local.
+%No entanto, a identidade de um usuário não é portável, ou seja, está atrelada a
+%um servidor específico e não pode ser usada transparentemente em outros.
+%, que inclusive podem ter homônimos ativos.
+No entanto, sem o controle de sua própria identidade, um usuário fica refém do
+seu servidor.
+Por exemplo, o servidor pode ser desligado pelos seus administradores ou banido
+pelo resto da federação, ou ainda o próprio usuário pode ficar insatisfeito com
+o serviço prestado.
+Em qualquer um desses casos, o usuário terá que exportar todo o seu conteúdo e
+histórico para outro servidor e anunciar a sua nova identidade aos seus
+seguidores.
+
+\begin{comment}
+Em sistemas peer-to-peer como propomos com o \FC, a identidade é
+controlada pelo próprio usuário com autenticação de chave pública, que pode ser
+usada igualmente em qualquer par da rede.
+A moderação de conteúdo é uma outra preocupação em sistemas federados.
+Como exemplo, mensagens que atravessam os limites da sua federação estão
+sujeitos a políticas diferentes.
+Tipicamente, as regras de moderação podem ser aplicadas localmente pelo usuário
+(ex., filtros de e-mail) ou ainda por servidores, o que afeta todos os seus
+usuários.
+O primeiro caso é mais flexível, porém é sujeito a ataques de disparo de
+mensagens em massa, por exemplo.
+O segundo caso pode bloquear o acesso a mensagens legítimas, pois ações globais
+são potencialmente sempre mais restritivas.
+No \FC, a moderação ocorre em outra dimensão.
+Em vez de indivíduos ou servidores adotarem políticas verticais em todas as
+suas mensagens, o \FC aplica uma política horizontal por tópico que
+afeta a sua disseminação na rede peer-to-peer inteira.
+Essa política parte do princípio que uma mensagem que é indesejada em uma
+comunidade não necessariamente será indesejada em outras comunidades.
+Como um contraponto, protocolos federados são mais apropriados para aplicações
+de tempo real com um grande número de mensagens curtas, tais como chats e
+streaming.
+A quantidade de saltos e sobrecarga de cabeçalho pode ser bem menor em
+arquiteturas cliente-servidor em comparação com sistemas peer-to-peer, que
+tipicamente dependem de assinaturas digitais, \emph{hash linking} e
+verificações extras.
+\end{comment}
+
+%\subsection{Sistemas Peer-to-Peer}
+
+Em sistemas peer-to-peer, todos os pares da rede desempenham as mesmas funções
+e atuam ora como clientes, ora como servidores.
+O \emph{Bitcoin}~\cite{p2p.bitcoin} é provavelmente a rede peer-to-peer de
+maior sucesso, mas serve a um propósito muito específico.
+O \emph{Scuttlebutt}~\cite{p2p.scuttlebutt} e \emph{Aether}~\cite{TODO} atendem
+aos cenários de comunicação entre amigos e grupos.
+Já o IPFS~\cite{p2p.ipfs} e Dat~\cite{p2p.dat} oferecem hospedagem de arquivos
+e aplicações.
+O IPFS é baseado no conceito de dados imutáveis com endereçamento por conteúdo,
+enquanto que o Dat em dados mutáveis com endereçamento por chave pública.
+O IPFS é mais adequado para compartilhar arquivos grandes e estáveis, tais como
+filmes e versões de software, enquanto que o Dat para conteúdo dinâmico como
+aplicações web.
+Ambos usam \emph{DHTs}~\cite{TODO} como base de suas arquiteturas, sendo
+portanto otimizadas para servir conteúdos grandes e populares, mas não tanto
+para buscas e descobrimento de conteúdo novo~\cite{TODO}.
+%Ambos também requerem que os usuários saibam de antemão o endereço do conteúdo,
+%seja o link exato de um filme, seja uma identidade em particular da rede.
+Por essa razão, DHTs não seja a melhor arquitetura para modelar atualizações
+contínuas de conteúdo com múltiplos autores, tais como em fóruns públicos.
+%Os sistemas a seguir não usam DHTs em sua arquitetura.
+\begin{comment}
+O Bitcoin tem uma propriedade muito forte de garantir que as mensagens da rede
+são ordenadas e que essa ordem é exatamente a mesma em todos os pares, ou seja,
+que há um consenso global sobre o estado da rede.
+O Bitcoin usa um algoritmo de consenso baseado em prova de trabalho que é imune
+a ataques \emph{sybil} em que identidades são forjadas.
+No entanto, prova de trabalho é computacionalmente cara e, na prática, mantém a
+rede sob controle de poucos pares, afetando o objetivo principal de
+descentralização.
+O \FC usa um sistema de reputação próprio para evitar SPAM e ataques
+sybil.
+\end{comment}
+%O sistema é apresentado na Seção XX e pode ser entendido como uma prova de
+%trabalho para humanos: um autor precisa “trabalhar” para postar conteúdo de
+%qualidade por sua vez é avaliado por outros humanos.
+Dentre os trabalhos discutidos, o Scuttlebutt e Aether são os mais similares ao
+\FC, e focam, respectivamente, na comunicação pública \Xon e \Xnn.
+O Scuttlebutt é baseado em identidades de usuários que se seguem par-a-par e
+formam um grafo que se reflete tanto nas conexões de rede quanto no
+armazenamento redundante dos seus dados.
+Como exemplo, se a identidade \emph{A} segue a identidade \emph{B}, então o
+computador de \emph{A} se conecta diretamente ao computador de \emph{B} e
+também armazena todas as postagens de \emph{B} localmente.
+%As relações são assimétricas, permitindo que \emph{B} não siga \emph{A}
+%necessariamente no exemplo dado.
+O \FC se baseia em tópicos, mas como um tópico pode ser de propriedade de uma
+identidade, então é possível modelar o mesmo comportamento do Scuttlebutt.
+%A topologia de rede do \FC também se baseia em conexões par a par, mas
+%não necessariamente entre seguidores.
+Já o Aether se baseia em comunidades organizadas em torno de tópicos.
+As postagens são replicadas na rede mas são efêmeras considerando uma janela de
+tempo.
+O Aether usa prova de trabalho nas postagens para evitar SPAM.
+Além disso, as comunidades elegem moderadores para prevenir comportamento
+abusivo.
+O \FC introduz um sistema de reputação distribuído para lidar com essas
+ameaças conforme discutido na Seção~\ref{sec.reps}.
+
+\section{Visão Geral do \FC}
 \label{sec.freechains}
 
-\subsection{Overview of \FC}
+\subsection{Funcionamento Básico}
 
-    - 3 APIs
-    - public key cryptography to deal with identities, confidentiality and
-    - duplication of all messages
-    - discuss of economy
+O \FC é um sistema publish-subscribe baseado em tópicos: um usuário
+posta uma mensagem em um tópico e seus assinantes eventualmente recebem a
+mensagem.
+A Figura~\ref{fig.all} ilustra os quatro conceitos básicos do \FC:
+\emph{cadeias}, \emph{blocos}, \emph{autores} e \emph{pares}.
 
-\section{Evaluation}
-\label{sec.evaluation}
-    - performance (hops)
+\begin{figure}[ht]
+\centering
+\includegraphics[width=.75\textwidth]{all.png}
+\caption{Conceitos básicos do \FC: cadeias, blocos, autores e pares.}
+\label{fig.all}
+\end{figure}
 
-\section{Related Work}
-\label{sec.related}
-    - availability (incentives)
+As \emph{cadeias}, destacadas em quadrados coloridos (vermelho, verde e
+amarelo), são independentes umas das outras e podem representar, por exemplo,
+os \emph{tweets} de uma personalidade (arranjo \Xon público), um grupo de
+\emph{Whatsapp} de amigos (arranjo \Xnn privado) ou um \emph{subreddit} em
+torno de um interesse em comum (arranjo \Xnn público).
+
+Cada cadeia possui um conjunto de \emph{blocos} com as postagens ou mensagens,
+destacadas como elipses coloridas (roxo, vermelho e verde), em cada cor
+representa um \emph{autor}.
+Os blocos da cadeia formam um grafo de causalidade indicando a relação temporal
+entre elas.
+Por exemplo, a primeira mensagem do autor vermelho aconteceu antes das
+primeiras mensagens dos autores roxo e verde.
+O grafo é um DAG e expressa a ordem parcial entre todos os blocos na cadeia.
+Toda cadeia tem um bloco \emph{gênesis} preexistente (não exibido na imagem)
+que, por construção, é anterior a (e alcançável por) todos os blocos da cadeia.
+
+O grafo da cadeia é replicado em todos os pares assinantes, ou seja, todos os
+nós da rede mantém todas as mensagens da cadeia, independentemente da autoria
+das postagens.
+Na figura, a cadeia amarela é replicada em três pares.
+A disseminação do grafo pela rede é feita por \emph{gossip}, ou seja, os pares
+se conectam dois a dois para sincronizar os seus grafos.
+Dessa maneira, o recebimento de mensagens no pares é eventual, pois depende de
+um roteamento par a par da origem ao destino.
+
+O \FC executa como um servidor ou \emph{daemon} e escuta requisições de
+usuários locais, por exemplo para postar ou ler mensagens, e se comunica com
+outros pares da rede peer-to-peer para sincronizar as suas cadeias de
+interesse.
+O daemon pode ser acessado de três formas equivalentes:
+%
+\begin{itemize}
+\item Pela linha de comando, que usamos no resto do artigo.
+\item Por uma API em Kotlin, que pode ser usada para criação de novas aplicações.
+\item Por um protocolo textual, que permite usar outras linguagens via sockets.
+\end{itemize}
+%
+\begin{comment}
+% 
+Os principais comandos do \FC são enumerados a seguir:
+%
+\begin{itemize}
+\item {\footnotesize\texttt{freechains-host start}}:     inicia daemon no diretório passado
+\item {\footnotesize\texttt{freechains crypto}}:         cria identidade criptográfica
+\item {\footnotesize\texttt{freechains chains join}}:    inscreve-se na cadeia
+\item {\footnotesize\texttt{freechains chain post}}:     posta na cadeia
+\item {\footnotesize\texttt{freechains chain get}}:      lê postagem da cadeia
+\item {\footnotesize\texttt{freechains chain traverse}}: itera sobre a cadeia
+\item {\footnotesize\texttt{freechains peer send/recv}}: sincroniza com par da rede
+\end{itemize}
+%
+Exceto pelo comando para iniciar o daemon, os outros comandos principais são
+efetuados remotamente através do cliente \texttt{freechains}.
+Isso permite compartilhar um par da rede entre múltiplos clientes, por exemplo,
+um desktop e um celular.
+\end{comment}
+%
+A sequência de comandos a seguir ilustra o funcionamento básico do \FC:
+%
+{\footnotesize
+\begin{verbatim}
+$ freechains start /var/fcs/ &      # inicia daemon em background
+$ freechains crypto pubpvt "senha"  # cria identidade publica
+EB172E... 96700A...                 # (retorna chaves publica e privada)
+$ freechains chains join "#chat"    # se inscreve na cadeia #chat
+$ freechains chain "#chat" post inline "Olá Mundo!" --sign=96700A...
+\end{verbatim}
+}
+
+Após iniciar o daemon, o usuário cria uma identidade para si.
+A chave pública pode ser compartilhada e a chave privada deve ser guardada em
+segredo.
+Em seguida o usuário se inscreve na cadeia \texttt{\#chat} e posta uma mensagem
+assinando-a com a sua chave privada.
+Até aqui, tudo ocorre localmente na máquina com o daemon em execução.
+A comunicação com outros pares deve ser feita explicitamente:
+%
+{\footnotesize
+\begin{verbatim}
+$ freechains peer 10.0.0.2 send "#chat"  # envia  #chat para 10.0.0.2
+$ freechains peer 10.0.0.2 recv "#chat"  # recebe #chat  de  10.0.0.2
+\end{verbatim}
+}
+%
+Para ler as postagens de uma cadeia, é necessário primeiro identificar os
+blocos não lidos:
+%
+{\footnotesize
+\begin{verbatim}
+$ freechains chain "#chat" genesis                # código do genesis
+10EEB7...
+$ freechains chain "#chat" traverse all 10EEB7... # todos ate o genesis
+A563EF... 12AB5C... FA2144...
+$ freechains chain "#chat" get payload A563EF...  # conteudo do bloco
+Bom dia!
+\end{verbatim}
+}
+
+O comando \texttt{traverse} retorna todos os blocos mais novos que o(s)
+bloco(s) passados como parâmetro e serve para identificar as postagens que
+ainda não foram lidas.
+Inicialmente, usamos o hash do bloco gênesis como âncora, já que nenhum bloco
+ainda foi lido.
+Em seguida, é possível usar o comando \texttt{heads} para identificar os blocos
+mais novos na "cabeça" do grafo e usá-los como âncora na próxima sincronização.
+%
+Uma outra forma é checar o conteúdo em tempo real através do comando
+\texttt{listen}:
+%
+{\footnotesize
+\begin{verbatim}
+$ freechains chain "#chat" listen   # escuta novos blocos em tempo real
+A563EF...                           # 1o bloco recebido
+12AB5C...                           # 2o bloco recebido
+FA2144...                           # 3o bloco recebido
+\end{verbatim}
+}
+%
+O comando é bloqueante e exibe uma nova linha, sempre que um novo bloco chega,
+com a sua identificação.
+Esse comando pode ser usado em conjunto com um \emph{pipe} para reagir a novas
+mensagens em tempo real.
+%
+Note que os comandos de \texttt{send} e \texttt{recv} devem ser executados para
+cada cadeia e para cada par da rede de interesse.
+Por exemplo, se o usuário segue 10 cadeias e se liga a 5 pares, os comandos
+deverão ser executados 100 vezes a cada sincronização ($2\times10\times5$).
+O \FC inclui uma ferramenta para automatizar o processo inteiro de
+sincronização.
+É possível registrar pares e cadeias e a ferramenta usa os comandos
+\texttt{listen}, \texttt{send} e \texttt{recv} para sincronizar-se assim que
+uma nova mensagem é postada ou recebida.
+
+\subsection{Arranjos de Disseminação de Conteúdo}
+
+O \FC suporta três tipos de cadeias, cada uma com um propósito diferente:
+%
+\begin{itemize}
+\item \textbf{Fóruns Públicos}:
+    Arranjo \Xnn público.
+    Comunicação pública entre participantes sem confiança mútua.
+    Exemplos: fóruns de perguntas e respostas, chats, e comércio eletrônico
+              público.
+\item \textbf{Grupos Privados}:
+    Arranjos privados \Xoo, \Xnn e \Xo.
+    Comunicação privada entre pares, grupos ou individuais.
+    Exemplos: e-mail, grupos de WhatsApp, backup.
+\item \textbf{Identidade Pública}:
+    Arranjos públicos \Xon e \Xno.
+    Uma identidade pública (ex., pessoa ou organização) dissemina conteúdo para
+    um público alvo (\Xon) com feedback opcional (\Xno).
+    Exemplos: sites de notícias, serviços de streaming e perfis públicos em
+    redes sociais.
+\end{itemize}
+%
+O tipo da cadeia é determinado pelo prefixo em seu nome:
+%
+\begin{itemize}
+    \item \textbf{\texttt{\#}}: fórum público (ex., \texttt{\#chat})
+    \item \textbf{\texttt{\$}}: grupo privado (ex., \texttt{\$familia})
+    \item \textbf{\texttt{@}}: identidade pública (ex., \texttt{@B2853F...})
+\end{itemize}
+
+Em fóruns públicos, as mensagens circulam entre usuários e pares sem confiança
+mútua.
+Por essa razão, cadeias desse tipo dependem do sistema de reputação do \FC para
+serem viáveis sob completa descentralização.
+%
+Em grupos privados, todas as postagens são automaticamente criptografadas
+usando uma chave compartilhada entre pares de confiança.
+Nesse caso, o comando \texttt{join} recebe um parâmetro extra com a chave, que
+deve ser executado da mesma forma em todos os pares:
+%
+{\footnotesize
+\begin{verbatim}
+$ freechains chain "$familia" 8889BB...
+\end{verbatim}
+}
+%
+Todos os usuários de grupos privados têm reputação infinita e nem é necessário
+assinar as mensagens.
+%
+Para cadeias de identidade pública, o nome deve ter o prefixo \texttt{@}
+seguido pela chave pública do autor proprietário da cadeia.
+O proprietário tem reputação infinita e deve assinar todas as mensagens com a
+sua chave privada.
+
+\subsection{Sistema de Reputação}
+
+No \FC, cada cadeia é controlada por um sistema de reputação autônomo que
+contabiliza a quantidade de likes e dislikes a autores e postagens.
+Como cada cadeia é independente, a reputação de um autor pode variar entre
+elas.
+A unidade de reputação é conhecida como \emph{rep} e pode ser gerada, consumida
+e transferida de diversas formas:
+%
+\begin{itemize}
+\item Geração:
+    \begin{itemize}
+    \item A primeira postagem de uma cadeia adiciona $+30~reps$ ao autor.
+    \item Qualquer postagem mais antiga que $24h$ conta $+1~rep$ ao autor.
+    %, aka \emph{postagem consolidada},
+    \end{itemize}
+\item Consumo:
+    \begin{itemize}
+    \item Qualquer postagem mais jovem que $24h$ conta $-1~rep$ ao autor.
+    %, aka \emph{postagem nova},
+    \end{itemize}
+\item Transferência:
+    \begin{itemize}
+    \item Um \emph{like}    partindo do autor \emph{A} à postagem \emph{P} do
+          autor \emph{B} conta $-1~rep$ para \emph{A} e $+1~rep$ para \emph{B}.
+    \item Um \emph{dislike} partindo do autor \emph{A} à postagem \emph{P} do
+          autor \emph{B} conta $-1~rep$ para \emph{A} e $+1~rep$ para \emph{B}.
+          Se uma postagem alcança pelo menos $5$ dislikes e o dobro do número
+          de likes, então o seu conteúdo é escondido da rede.
+    \end{itemize}
+\end{itemize}
+
+A qualidade das postagens é subjetiva e cabe aos usuários a julgarem com likes,
+dislikes ou simples abstenções.
 
 \section{Conclusion}
 \label{sec.conclusion}
 
+\begin{comment}
 \section{Figures and Captions}\label{sec:figs}
 
 Figure and table captions should be centered if less than one line
@@ -175,13 +571,6 @@ Figure and table captions should be centered if less than one line
 both margins, as shown in Figure~\ref{fig:exampleFig2}. The caption font must
 be Helvetica, 10 point, boldface, with 6 points of space before and after each
 caption.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=.5\textwidth]{fig1.jpg}
-\caption{A typical figure}
-\label{fig:exampleFig1}
-\end{figure}
 
 \begin{figure}[ht]
 \centering
@@ -224,6 +613,8 @@ the author names references in brackets, e.g. \cite{knuth:84},
 The references must be listed using 12 point font size, with 6 points of space
 before each reference. The first line of each reference should not be
 indented, while the subsequent should be indented by 0.5 cm.
+
+\end{comment}
 
 \bibliographystyle{sbc}
 \bibliography{sbc-template}
