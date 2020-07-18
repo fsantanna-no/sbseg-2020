@@ -149,9 +149,9 @@ das postagens e autores dentro de cada cadeia e tem os seguintes objetivos:
 \begin{itemize}
 \item Combater o excesso de conteúdo restringindo o número de postagens por autor.
 \item Destacar o conteúdo de qualidade com um mecanismo de \emph{likes \& dislikes}.
-\item Combater SPAM, notícias falsas e conteúdo ilegal demandando reputação
+\item Combater SPAM, notícias falsas e conteúdo ilícito demandando reputação
       prévia de autores e removendo postagens com proporção muito baixa entre
-      \emph{likes \& dislikes}.
+      likes e dislikes.
 \end{itemize}
 %
 O código fonte, documentação e vídeos introdutórios sobre o \FC estão
@@ -343,8 +343,8 @@ os \emph{tweets} de uma personalidade (arranjo \Xon público), um grupo de
 \emph{Whatsapp} de amigos (arranjo \Xnn privado) ou um \emph{subreddit} em
 torno de um interesse em comum (arranjo \Xnn público).
 
-Cada cadeia possui um conjunto de \emph{blocos} com as postagens ou mensagens,
-destacadas como elipses coloridas (roxo, vermelho e verde), em cada cor
+Cada cadeia possui um conjunto de \emph{blocos} com as postagens, que estão
+destacadas como elipses coloridas (roxo, vermelho e verde), em que cada cor
 representa um \emph{autor}.
 Os blocos da cadeia formam um grafo de causalidade indicando a relação temporal
 entre elas.
@@ -429,8 +429,8 @@ blocos não lidos:
 \begin{verbatim}
 $ freechains chain "#chat" genesis                # código do genesis
 10EEB7...
-$ freechains chain "#chat" traverse all 10EEB7... # todos ate o genesis
-A563EF... 12AB5C... FA2144...
+$ freechains chain "#chat" traverse all 0_10EE... # todos ate o genesis
+1_A5EF... 2_1B5C... 2_2144...
 $ freechains chain "#chat" get payload A563EF...  # conteudo do bloco
 Bom dia!
 \end{verbatim}
@@ -439,8 +439,8 @@ Bom dia!
 O comando \texttt{traverse} retorna todos os blocos mais novos que o(s)
 bloco(s) passados como parâmetro e serve para identificar as postagens que
 ainda não foram lidas.
-Inicialmente, usamos o hash do bloco gênesis como âncora, já que nenhum bloco
-ainda foi lido.
+Inicialmente, usamos a identificação do bloco gênesis como âncora, já que
+nenhum bloco ainda foi lido.
 Em seguida, é possível usar o comando \texttt{heads} para identificar os blocos
 mais novos na "cabeça" do grafo e usá-los como âncora na próxima sincronização.
 %
@@ -450,9 +450,9 @@ Uma outra forma é checar o conteúdo em tempo real através do comando
 {\footnotesize
 \begin{verbatim}
 $ freechains chain "#chat" listen   # escuta novos blocos em tempo real
-A563EF...                           # 1o bloco recebido
-12AB5C...                           # 2o bloco recebido
-FA2144...                           # 3o bloco recebido
+1_A563...                           # 1o bloco recebido
+2_12AB...                           # 2o bloco recebido
+2_FA21...                           # 3o bloco recebido
 \end{verbatim}
 }
 %
@@ -470,6 +470,61 @@ sincronização.
 É possível registrar pares e cadeias e a ferramenta usa os comandos
 \texttt{listen}, \texttt{send} e \texttt{recv} para sincronizar-se assim que
 uma nova mensagem é postada ou recebida.
+
+Mais tecnicamente, um bloco é uma estrutura de dados que persiste uma única
+mensagem na cadeia.
+Ele se encadeia às postagens anteriores e é encadeado pelas próximas postagens.
+A Figura~\ref{fig.block} ilustra o encadeamento e o trecho a seguir mostra a
+representação interna de um bloco:
+%
+{\footnotesize
+\begin{verbatim}
+data Block:
+    msg   : String              ; (1)
+    sign? : (HKey,String)       ; (2)
+    meta  :                     ; (3)
+        time  : Long
+        msg   : (Bool,Hash)
+        like? : (Hash,Int)
+        backs : Array<Hash>
+    hash  : Hash                ; (4)
+\end{verbatim}
+}
+%
+As quatro partes enumeradas acima são as seguintes:
+%
+\begin{enumerate}
+\item[msg:]  O conteúdo da mensagem propriamente dita.
+\item[sign:] Uma assinatura opcional com a chave pública do autor e o código da
+             assinatura.
+\item[meta:] Os metadados da mensagem: com tempo de criação, se está
+             criptografada, com o seu hash, se é um like/dislike, e os elos
+             para blocos anteriores.
+\item[hash:] O hash criptográfico dos metadados do bloco que o identificam
+             univocamente. O hash é prefixado com a altura do bloco na cadeia.
+             Por exemplo, o bloco
+                \texttt{5\_F700CC98A6BA6A562CF6272AFC1044CB0F049E2E71D1076DA3391E85EE2CE2B8}
+             possui altura \texttt{5} e hash \texttt{F700CC...}.
+\end{enumerate}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=.75\textwidth]{block.png}
+\caption{Um bloco (centro) se encadeia aos anteriores (esquerda) e é encadeado
+         pelos próximos (direita).}
+\label{fig.block}
+\end{figure}
+
+O encadeamento dos blocos forma um grafo direcionado acíclico que é imune a
+modificações (\emph{Merkle DAG}).
+Ao se criar um novo bloco, calcula-se o hash dos seus metadados, que por sua
+vez incluem os hashes da mensagem em si e dos blocos anteriores.
+Esse novo hash identifica o bloco em todas as operações, inclusive nos elos dos
+próximos blocos, e pode a qualquer momento ser recalculado para verificar se os
+dados sofreram modificações.
+Como os elos anteriores também são identificados da mesma forma, o grafo pode
+ser verificado até o seu gênesis, cujo hash depende somente dos parâmetros da
+cadeia, sendo igualmente verificável.
 
 \subsection{Arranjos de Disseminação de Conteúdo}
 
@@ -527,12 +582,18 @@ sua chave privada.
 
 \subsection{Sistema de Reputação}
 
-No \FC, cada cadeia é controlada por um sistema de reputação autônomo que
-contabiliza a quantidade de likes e dislikes a autores e postagens.
+Fóruns públicos descentralizados são um convite para usuários maliciosos
+abusarem da rede com SPAM, notícias falsas e conteúdo ilícito.
+O sistema de reputação do \FC permite somente que usuários com reputação prévia
+possam postar conteúdo novo em uma cadeia.
+Caso contrário, a postagem fica retida no par de origem e precisa ser aprovada
+por algum usuário com reputação para ser disseminada na rede.
+Cada cadeia é controlada por um sistema autônomo que contabiliza a quantidade
+de likes e dislikes a autores e postagens.
 Como cada cadeia é independente, a reputação de um autor pode variar entre
 elas.
-A unidade de reputação é conhecida como \emph{rep} e pode ser gerada, consumida
-e transferida de diversas formas:
+A unidade de reputação é conhecida como $rep$ e pode ser gerada, consumida e
+transferida de diversas formas:
 %
 \begin{itemize}
 \item Geração:
@@ -556,9 +617,51 @@ e transferida de diversas formas:
           de likes, então o seu conteúdo é escondido da rede.
     \end{itemize}
 \end{itemize}
+%
+A primeira regra de geração de $reps$ é essencial para fazer o ``bootstrap'' de
+uma cadeia, uma vez que seria impossível realizar postagens se ninguém possui
+reputação nenhuma.
+Assim, o autor da primeira postagem molda a cultura inicial da cadeia ao
+transferir sua reputação a outros autores, que por sua vez transferem a outros
+autores, expandindo a comunidade em alguma direção de preferência.
+%
+Note que cadeias de mesmo nome mas com primeiros autores diferentes são
+incompatíveis e o protocolo se recusa a sincronizá-las.
+Isso pode acontecer quando duas redes independentes (ex., UERJ e PUC-Rio)
+seguem uma cadeia de nome usual (ex., \texttt{\#computacao}) e, de algum jeito,
+acabam se unindo através de um par em comum.
+
+Os comandos de \texttt{like} e \texttt{dislike} atuam sobre uma postagem já
+existente na cadeia:
+%
+{\footnotesize
+\begin{verbatim}
+$ freechains chain "#chat" like 12AB5C... --sign=96700A...
+\end{verbatim}
+}
+%
+Nesse caso, o usuário que assinou o like (e precisa ter reputação positiva)
+transfere $1~rep$ seu para o autor da postagem referenciada.
+%
+Já o comando \texttt{reps} verifica a reputação passando a chave pública do
+autor ou identificador hash da postagem a ser consultada:
+%
+{\footnotesize
+\begin{verbatim}
+$ freechains chain "#chat" reps 12AB5C...
+5   <-- reputacao da postagem
+\end{verbatim}
+}
+
+- hashes, merkle, json
+- discussao
+
 
 A qualidade das postagens é subjetiva e cabe aos usuários a julgarem com likes,
 dislikes ou simples abstenções.
+Um usuário pode desgostar de uma postagem por considerá-lo ofensivo, SPAM,
+falso, ilegal, ou por simples desacordo.
+Por um lado, como os $reps$ são finitos
 
 \section{Conclusion}
 \label{sec.conclusion}
