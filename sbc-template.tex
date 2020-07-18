@@ -503,7 +503,7 @@ As quatro partes enumeradas acima são as seguintes:
 \item[hash:] O hash criptográfico dos metadados do bloco que o identificam
              univocamente. O hash é prefixado com a altura do bloco na cadeia.
              Por exemplo, o bloco
-                \texttt{5\_F700CC98A6BA6A562CF6272AFC1044CB0F049E2E71D1076DA3391E85EE2CE2B8}
+                {\scriptsize\texttt{5\_F700CC98A6BA6A562CF6272AFC1044CB0F049E2E71D1076DA3391E85EE2CE2B8}}
              possui altura \texttt{5} e hash \texttt{F700CC...}.
 \end{enumerate}
 
@@ -595,32 +595,45 @@ elas.
 A unidade de reputação é conhecida como $rep$ e pode ser gerada, consumida e
 transferida de diversas formas:
 %
-\begin{itemize}
+\begin{enumerate}
 \item Geração:
-    \begin{itemize}
+    \begin{enumerate}
     \item A primeira postagem de uma cadeia adiciona $+30~reps$ ao autor.
-    \item Qualquer postagem mais antiga que $24h$ conta $+1~rep$ ao autor.
+    \item Qualquer postagem mais antiga que $24h$ conta $+1~rep$ ao autor, mas
+          limitada a uma por dia. Se o autor postou 10 postagens nos últimos 7
+          dias, ele recebe somente $+7~reps$.
     %, aka \emph{postagem consolidada},
-    \end{itemize}
+    \end{enumerate}
 \item Consumo:
-    \begin{itemize}
+    \begin{enumerate}
     \item Qualquer postagem mais jovem que $24h$ conta $-1~rep$ ao autor.
     %, aka \emph{postagem nova},
-    \end{itemize}
+    \end{enumerate}
 \item Transferência:
-    \begin{itemize}
+    \begin{enumerate}
     \item Um \emph{like}    partindo do autor \emph{A} à postagem \emph{P} do
           autor \emph{B} conta $-1~rep$ para \emph{A} e $+1~rep$ para \emph{B}.
     \item Um \emph{dislike} partindo do autor \emph{A} à postagem \emph{P} do
           autor \emph{B} conta $-1~rep$ para \emph{A} e $+1~rep$ para \emph{B}.
           Se uma postagem alcança pelo menos $5$ dislikes e o dobro do número
           de likes, então o seu conteúdo é escondido da rede.
-    \end{itemize}
-\end{itemize}
+    \end{enumerate}
+\item Regras Adicionais:
+    \begin{enumerate}
+    \item Postagens de usuários sem reputação ficam retidas (não são nem
+          encadeadas nem retransmitidas) até receberem um like.
+    \item Um usuário fica limitado a $+30~reps$.
+    \item Para todos os efeitos, somente postagens mais novas que 90 dias são
+          consideradas.
+    \item Em cadeias privadas, todos os usuários têm reputação infinita.
+    \item Em cadeias de identidade pública, o proprietário tem reputação
+          infinita.
+    \end{enumerate}
+\end{enumerate}
 %
-A primeira regra de geração de $reps$ é essencial para fazer o ``bootstrap'' de
-uma cadeia, uma vez que seria impossível realizar postagens se ninguém possui
-reputação nenhuma.
+A primeira regra de geração de $reps$ (\texttt{1.a}) é essencial para fazer o
+``bootstrap'' de uma cadeia, uma vez que seria impossível realizar postagens se
+ninguém possui reputação nenhuma.
 Assim, o autor da primeira postagem molda a cultura inicial da cadeia ao
 transferir sua reputação a outros autores, que por sua vez transferem a outros
 autores, expandindo a comunidade em alguma direção de preferência.
@@ -640,8 +653,8 @@ $ freechains chain "#chat" like 12AB5C... --sign=96700A...
 \end{verbatim}
 }
 %
-Nesse caso, o usuário que assinou o like (e precisa ter reputação positiva)
-transfere $1~rep$ seu para o autor da postagem referenciada.
+Nesse caso, o usuário que assinou o like transfere $1~rep$ seu para o autor da
+postagem referenciada (regra~\texttt{3.a}).
 %
 Já o comando \texttt{reps} verifica a reputação passando a chave pública do
 autor ou identificador hash da postagem a ser consultada:
@@ -653,20 +666,59 @@ $ freechains chain "#chat" reps 12AB5C...
 \end{verbatim}
 }
 
-- hashes, merkle, json
-- discussao
+A qualidade das postagens é subjetiva e cabe aos usuários as julgarem com
+likes, dislikes ou simples abstenções.
+Um usuário pode desgostar de uma postagem por considerá-la ofensiva, SPAM,
+falsa, ilícita, ou por simples desacordo.
+Por um lado, como os $reps$ são finitos, os usuários devem ponderar e evitar o
+seu gasto indiscriminado.
+Por outro lado, os $reps$ também expiram após 3 meses, então os usuários tem
+incentivos para cooperar com a qualidade das cadeias.
+Um conteúdo pode ser banido quando o número de dislikes supera em muito o
+número de likes.
+Considerando que os $reps$ são escassos, o banimento de postagens não tem o
+objetivo de eliminar discordâncias de opinião, mas sim de evitar a atuação de
+usuários maliciosos.
 
+O sistema de reputação do \FC busca oferecer oportunidades de participação nas
+cadeias minimamente justas.
+Por isso, restringe o número de postagens de um dado autor de duas maneiras:
+    (1) penaliza postagens com menos de $24h$ (regra~\texttt{2.a}); e
+    (2) limita o ganho de reputação por postagens novas em $1 rep$ por dia
+        (regra~\texttt{1.b}).
+A primeira maneira previne que um mesmo autor poste muitas mensagens em
+sequência sob a pena de consumir a sua própria reputação muito rapidamente.
+A segunda evita o acúmulo de reputação simplesmente por postar com muita
+frequência.
 
-A qualidade das postagens é subjetiva e cabe aos usuários a julgarem com likes,
-dislikes ou simples abstenções.
-Um usuário pode desgostar de uma postagem por considerá-lo ofensivo, SPAM,
-falso, ilegal, ou por simples desacordo.
-Por um lado, como os $reps$ são finitos
+O tamanho da ``economia'' de uma cadeia é a sua quantidade de postagens
+consolidadas (regra~\texttt{1.b}), dado que postagens com mais de $24h$ são a
+única forma de gerar $reps$.
+Isso porque likes e dislikes apenas transferem reputação e a reputação inicial
+se torna insignificante com o tempo.
+A economia também depende muito da quantidade de autores ativos, uma vez que
+a geração de $reps$ por autor é limitada a $1$ por dia.
+Esse mecanismo incentiva o acolhimento de novos autores a contribuírem, ao
+mesmo tempo que desincentiva dislikes pois drenam $2~reps$ da economia
+(regra~\texttt{3.b}).
+Por um lado, esse desincentivo contribui para discussões com um nível razoável
+de desacordo, pois evita o colapso da cadeia com um surto de dislikes.
+Por outro lado, conteúdos claramente indesejados como SPAM de usuários que
+pouco contribuíram são banidos rapidamente da cadeia com poucos dislikes
+(regra~\texttt{3.b}).
 
-\section{Conclusion}
+\section{Conclusão}
 \label{sec.conclusion}
 
+TODO
+
 \begin{comment}
+O \FC é um protocolo peer-to-peer para disseminação de conteúdo que pode ser
+manipulado através de uma ferramenta para criar aplicações distribuídas.
+Aplicações
+    - wiki
+    - face
+
 \section{Figures and Captions}\label{sec:figs}
 
 Figure and table captions should be centered if less than one line
