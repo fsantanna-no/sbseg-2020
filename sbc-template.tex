@@ -70,8 +70,8 @@ Cada tópico público conta com um sistema descentralizado de reputação para
 combater abusos, tais como SPAM e notícias falsas.
 %Autores precisam de reputação prévia para postar novo conteúdo, que ainda assim
 %pode ser removido se a proporção entre \emph{likes \& dislikes} for muito baixa.
-O \FC executa como um \emph{daemon} no pares da rede e permite
-interações pela linha de comando ou por um \emph{app} para Android.
+O \FC executa como um \emph{daemon} nos pares da rede e permite
+interações pela linha de comando, API em Kotlin ou sockets.
 \end{abstract}
      
 %\begin{resumo}
@@ -79,22 +79,21 @@ interações pela linha de comando ou por um \emph{app} para Android.
 
 \section{Introdução}
 
-Apesar do crescimento contínuo da Internet ao longo dos anos, o seu conteúdo
+Apesar do crescimento contínuo da internet ao longo dos anos, o seu conteúdo
 disponível está cada vez mais sob o controle de poucas
 empresas~\cite{internet.fixing}.
 Consideramos como conteúdo qualquer tipo de informação ou interação na
-Internet, tais como trocas de e-mails, consumo de notícias, interações em redes
+internet, tais como trocas de e-mails, consumo de notícias, interações em redes
 sociais, ou até mesmo backup de documentos.
 %
-As empresas provedoras de conteúdo somente auxiliam o acesso entre seus
-usuários, mas tipicamente não criam conteúdo original.
-Por um lado, elas oferecem funcionalidades essenciais, tais como interfaces
-amigáveis, armazenamento grátis e conectividade permanente.
+As empresas de internet tipicamente são somente intermediárias entre seus
+usuários, mas não criam conteúdo original.
+Por um lado, elas são essenciais, oferecendo interfaces amigáveis,
+armazenamento grátis e conectividade permanente.
 Por outro lado, essas empresas concentram mais poder do que o necessário para
-operarem, uma vez que mantém nossos dados sob controle, coletam informações
-privadas, decidem o que consumimos com base em algoritmos arbitrários, exigem
-conectividade mesmo para informações já consumidas, e ainda dificultam a
-portabilidade entre serviços através de formatos e protocolos proprietários.
+operarem, uma vez que controlam nossos dados, coletam informações privadas,
+``algoritimizam'' o consumo, e ainda dificultam a portabilidade entre serviços
+através de formatos e protocolos proprietários.
 
 Sistemas de disseminação \emph{peer-to-peer}~\cite{p2p.survey} oferecem uma
 alternativa aos serviços centralizados, eliminando intermediários e movendo
@@ -109,12 +108,12 @@ estão espalhados nas bordas da rede:
     e como investir na usabilidade do sistema sem um modelo de negócio.
 
 Neste trabalho, apresentamos o \emph{\FC} como uma ferramenta para a
-disseminação de conteúdo peer-to-peer sem a intermediação ou controle de acesso
+disseminação de conteúdo peer-to-peer sem intermediação ou controle de acesso
 centralizado, e sem a necessidade de confiança entre seus usuários.
 No \FC, um usuário posta uma mensagem em um tópico, também chamado de
 cadeia, e todos os outros assinantes daquela cadeia eventualmente recebem a
 mensagem.
-O \FC propõe duas contribuições principais: (1) um protocolo mínimo para
+O \FC apresenta duas contribuições principais: (1) um protocolo mínimo para
 múltiplos arranjos de disseminação de conteúdo e (2) um sistema de reputação
 autônomo e descentralizado.
 %
@@ -123,8 +122,8 @@ disseminação de conteúdo entre seus usuários:
 %
 \begin{itemize}
 \item \textbf{Arranjos públicos \Xon e \Xno:}
-    Uma identidade pública (ex., pessoa ou organização) dissemina conteúdo para
-    um público alvo (\Xon) com feedback opcional (\Xno).
+    Uma identidade pública (ex., pessoa ou organização) dissemina conteúdo
+    autenticado para um público alvo (\Xon) com feedback opcional (\Xno).
     Exemplos são sites de notícias, serviços de streaming e perfis públicos em
     redes sociais.
 \item \textbf{Arranjos privados \Xoo, \Xnn e \Xo:}
@@ -135,7 +134,7 @@ disseminação de conteúdo entre seus usuários:
     Exemplos são e-mails, grupos de família e backup de documentos.
 \item \textbf{Arranjos públicos \Xnn:}
     Grupos heterogêneos se comunicam publicamente. Exemplos são fóruns de
-    perguntas e respostas, chats, e comércio eletrônico público.
+    perguntas e respostas, chats, e compra \& venda online.
 \end{itemize}
 %
 %A API do protocolo é composta basicamente de comandos para assinar cadeias de
@@ -144,7 +143,8 @@ disseminação de conteúdo entre seus usuários:
 %(\texttt{get}).
 %
 Sobre a segunda contribuição, o sistema de reputação do \FC rege a qualidade
-das postagens e autores dentro de cada cadeia e tem os seguintes objetivos:
+das postagens e autores dentro de cadeias públicas e tem os seguintes
+objetivos:
 %
 \begin{itemize}
 \item Combater o excesso de conteúdo restringindo o número de postagens por autor.
@@ -172,12 +172,9 @@ Aqui nós consideramos \emph{middlewares publish-subscribe},
 
 %\subsection{Middlewares Publish-Subscribe}
 
-Os middlewares publish-subscribe (aka \emph{message brokers}) auxiliam
-no desenvolvimento de aplicações descentralizadas ao desacoplar produtores
-(\emph{publishers}) e consumidores (\emph{subscribers}).
-Em vez de enviar as mensagens diretamente aos consumidores, os produtores as
-encaminham a um intermediário (broker) que mantém uma lista de assinantes
-(subscribers) que devem receber as mensagens~\cite{TODO}.
+Os middlewares publish-subscribe auxiliam no projeto de aplicações
+descentralizadas ao desacoplar produtores (\emph{publishers}) de consumidores
+(\emph{subscribers}) através de um intermediário (broker)~\cite{TODO}.
 Exemplos de sistemas pubsub incluem o \emph{XMPP}, \emph{AMQP}, \emph{WebSub} e
 \emph{ActivityPub}.
 Um aspecto chave em \emph{pubsubs} é que, embora produtor e consumidor se
@@ -185,9 +182,9 @@ comuniquem sem conhecimento mútuo, os brokers ainda possuem um papel
 centralizador na rede.
 Eles são necessários para autenticar e validar as postagens, por exemplo, além
 de servirem as filas de mensagens que conectam produtores e consumidores.
-As filas são hospedadas em endereços previamente conhecidos (ex.,
-\url{amqp://user@domain/path}), o que impede uma arquitetura inteiramente
-distribuída.
+%As filas são hospedadas em endereços previamente conhecidos (ex.,
+%\url{amqp://user@domain/path}), o que impede uma arquitetura inteiramente
+%distribuída.
 
 \begin{comment}
 Aumentar o número de servidores, como em pubsubs federados~\cite{TODO} não
@@ -205,15 +202,15 @@ notícias falsas, conteúdo legal e etc.
 
 %\subsection{Protocolos e Aplicações Federadas}
 
-Em protocolos federados~\cite{TODO}, a identidade de um usuário ainda é
-atrelada a um servidor específico, mas os servidores podem se sincronizar para
-permitir a comunicação externa entre seus usuários.
+Em protocolos federados~\cite{TODO} os diversos servidores podem se sincronizar
+para permitir a comunicação externa entre seus usuários, mas a identidade de um
+usuário ainda é atrelada a um servidor específico.
 O serviço de e-mail (SMTP) é provavelmente o protocolo federado mais popular e
-permite que o usuário de um domínio troque mensagens com um usuário de outro
-domínios de maneira transparente.
-Mais recentemente, o \emph{Diaspora}, \emph{Matrix} e \emph{Mastodon} atenderam
-aos cenários de redes sociais, chats e \emph{microblogging} com arquiteturas
-federadas.
+permite que usuários de domínios diferentes troquem mensagens de maneira
+transparente.
+Mais recentemente, os sistemas \emph{Diaspora}, \emph{Matrix} e \emph{Mastodon}
+cobriram aos cenários de redes sociais, chats e \emph{microblogging} com
+arquiteturas federadas.
 Em sistemas federados, todo conteúdo poder ser gerenciado localmente em suas
 instâncias e a sincronização externa é um passo em separado, mas que não é
 necessário para o funcionamento local.
@@ -278,7 +275,7 @@ portanto otimizadas para servir conteúdos grandes e populares, mas não tanto
 para buscas e descobrimento de conteúdo novo~\cite{TODO}.
 %Ambos também requerem que os usuários saibam de antemão o endereço do conteúdo,
 %seja o link exato de um filme, seja uma identidade em particular da rede.
-Por essa razão, DHTs não seja a melhor arquitetura para modelar atualizações
+Por essa razão, DHTs não são a melhor arquitetura para modelar atualizações
 contínuas de conteúdo com múltiplos autores, tais como em fóruns públicos.
 %Os sistemas a seguir não usam DHTs em sua arquitetura.
 \begin{comment}
@@ -332,8 +329,8 @@ A Figura~\ref{fig.all} ilustra os quatro conceitos básicos do \FC:
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=.75\textwidth]{all.png}
-\caption{Conceitos básicos do \FC: cadeias, blocos, autores e pares.}
+\includegraphics[width=.65\textwidth]{all.png}
+\caption{\scriptsize{Conceitos básicos do \FC: cadeias, blocos, autores e pares.}}
 \label{fig.all}
 \end{figure}
 
@@ -343,20 +340,20 @@ os \emph{tweets} de uma personalidade (arranjo \Xon público), um grupo de
 \emph{Whatsapp} de amigos (arranjo \Xnn privado) ou um \emph{subreddit} em
 torno de um interesse em comum (arranjo \Xnn público).
 
-Cada cadeia possui um conjunto de \emph{blocos} com as postagens, que estão
+Cada cadeia possui um conjunto de \emph{blocos} com suas postagens, que estão
 destacadas como elipses coloridas (roxo, vermelho e verde), em que cada cor
 representa um \emph{autor}.
 Os blocos da cadeia formam um grafo de causalidade indicando a relação temporal
 entre elas.
-Por exemplo, a primeira mensagem do autor vermelho aconteceu antes das
-primeiras mensagens dos autores roxo e verde.
+Por exemplo, a primeira mensagem do autor vermelho ocorreu antes das primeiras
+mensagens dos autores roxo e verde.
 O grafo é um DAG e expressa a ordem parcial entre todos os blocos na cadeia.
 Toda cadeia tem um bloco \emph{gênesis} preexistente (não exibido na imagem)
-que, por construção, é anterior a (e alcançável por) todos os blocos da cadeia.
+que, por construção, é alcançável por todos os blocos da cadeia.
 
-O grafo da cadeia é replicado em todos os pares assinantes, ou seja, todos os
-nós da rede mantém todas as mensagens da cadeia, independentemente da autoria
-das postagens.
+O grafo da cadeia é replicado em todos os pares com assinantes, ou seja, todos
+mantém todas as mensagens da cadeia, independentemente da autoria das
+postagens.
 Na figura, a cadeia amarela é replicada em três pares.
 A disseminação do grafo pela rede é feita por \emph{gossip}, ou seja, os pares
 se conectam dois a dois para sincronizar os seus grafos.
@@ -364,14 +361,15 @@ Dessa maneira, o recebimento de mensagens no pares é eventual, pois depende de
 um roteamento par a par da origem ao destino.
 
 O \FC executa como um servidor ou \emph{daemon} e escuta requisições de
-usuários locais, por exemplo para postar ou ler mensagens, e se comunica com
-outros pares da rede peer-to-peer para sincronizar as suas cadeias de
+usuários locais, por exemplo para postar ou ler mensagens, e também se comunica
+com outros pares da rede peer-to-peer para sincronizar as suas cadeias de
 interesse.
 O daemon pode ser acessado de três formas equivalentes:
 %
 \begin{itemize}
 \item Pela linha de comando, que usamos no resto do artigo.
-\item Por uma API em Kotlin, que pode ser usada para criação de novas aplicações.
+\item Por uma API em Kotlin, que pode ser usada como base para a criação de
+      novas aplicações.
 \item Por um protocolo textual, que permite usar outras linguagens via sockets.
 \end{itemize}
 %
@@ -427,11 +425,11 @@ blocos não lidos:
 %
 {\footnotesize
 \begin{verbatim}
-$ freechains chain "#chat" genesis                # código do genesis
+$ freechains chain "#chat" genesis                # hash id do genesis
 10EEB7...
-$ freechains chain "#chat" traverse all 0_10EE... # todos ate o genesis
+$ freechains chain "#chat" traverse all 0_10EE... # do genesis em diante
 1_A5EF... 2_1B5C... 2_2144...
-$ freechains chain "#chat" get payload A563EF...  # conteudo do bloco
+$ freechains chain "#chat" get payload 1_A5EF...  # conteudo do bloco
 Bom dia!
 \end{verbatim}
 }
@@ -440,9 +438,9 @@ O comando \texttt{traverse} retorna todos os blocos mais novos que o(s)
 bloco(s) passados como parâmetro e serve para identificar as postagens que
 ainda não foram lidas.
 Inicialmente, usamos a identificação do bloco gênesis como âncora, já que
-nenhum bloco ainda foi lido.
+nenhum bloco ainda foi lido pelo usuário.
 Em seguida, é possível usar o comando \texttt{heads} para identificar os blocos
-mais novos na "cabeça" do grafo e usá-los como âncora na próxima sincronização.
+mais novos na cabeça do grafo e usá-los como âncora na próxima varredura.
 %
 Uma outra forma é checar o conteúdo em tempo real através do comando
 \texttt{listen}:
@@ -450,32 +448,32 @@ Uma outra forma é checar o conteúdo em tempo real através do comando
 {\footnotesize
 \begin{verbatim}
 $ freechains chain "#chat" listen   # escuta novos blocos em tempo real
-1_A563...                           # 1o bloco recebido
-2_12AB...                           # 2o bloco recebido
-2_FA21...                           # 3o bloco recebido
+1_A5EF...                           # 1o bloco recebido
+2_1B5C...                           # 2o bloco recebido
+2_2144...                           # 3o bloco recebido
 \end{verbatim}
 }
 %
-O comando é bloqueante e exibe uma nova linha, sempre que um novo bloco chega,
+O comando é bloqueante e exibe uma nova linha sempre que um novo bloco chega
 com a sua identificação.
 Esse comando pode ser usado em conjunto com um \emph{pipe} para reagir a novas
 mensagens em tempo real.
-%
-Note que os comandos de \texttt{send} e \texttt{recv} devem ser executados para
-cada cadeia e para cada par da rede de interesse.
+
+Os comandos \texttt{send} e \texttt{recv} devem ser executados para cada cadeia
+e para cada par da rede de interesse.
 Por exemplo, se o usuário segue 10 cadeias e se liga a 5 pares, os comandos
 deverão ser executados 100 vezes a cada sincronização ($2\times10\times5$).
 O \FC inclui uma ferramenta para automatizar o processo inteiro de
 sincronização.
 É possível registrar pares e cadeias e a ferramenta usa os comandos
-\texttt{listen}, \texttt{send} e \texttt{recv} para sincronizar-se assim que
+\texttt{listen}, \texttt{send} e \texttt{recv} para se sincronizar assim que
 uma nova mensagem é postada ou recebida.
 
 Mais tecnicamente, um bloco é uma estrutura de dados que persiste uma única
 mensagem na cadeia.
 Ele se encadeia às postagens anteriores e é encadeado pelas próximas postagens.
-A Figura~\ref{fig.block} ilustra o encadeamento e o trecho a seguir mostra a
-representação interna de um bloco:
+A Figura~\ref{fig.block} ilustra o encadeamento de blocos no grafo da cadeia e
+o trecho a seguir mostra a representação interna de um bloco:
 %
 {\footnotesize
 \begin{verbatim}
@@ -497,9 +495,9 @@ As quatro partes enumeradas acima são as seguintes:
 \item[msg:]  O conteúdo da mensagem propriamente dita.
 \item[sign:] Uma assinatura opcional com a chave pública do autor e o código da
              assinatura.
-\item[meta:] Os metadados da mensagem: com tempo de criação, se está
-             criptografada, com o seu hash, se é um like/dislike, e os elos
-             para blocos anteriores.
+\item[meta:] Os metadados da mensagem: tempo de criação, se está criptografada,
+             hash da mensagem, se é um like/dislike, e os elos para blocos
+             anteriores.
 \item[hash:] O hash criptográfico dos metadados do bloco que o identificam
              univocamente. O hash é prefixado com a altura do bloco na cadeia.
              Por exemplo, o bloco
@@ -509,9 +507,9 @@ As quatro partes enumeradas acima são as seguintes:
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=.75\textwidth]{block.png}
-\caption{Um bloco (centro) se encadeia aos anteriores (esquerda) e é encadeado
-         pelos próximos (direita).}
+\includegraphics[width=.65\textwidth]{block.png}
+\caption{\scriptsize{Bloco (centro) se encadeia aos anteriores (esq.) e é encadeado
+         pelos próximos (dir.).}}
 \label{fig.block}
 \end{figure}
 
@@ -534,8 +532,7 @@ O \FC suporta três tipos de cadeias, cada uma com um propósito diferente:
 \item \textbf{Fóruns Públicos}:
     Arranjo \Xnn público.
     Comunicação pública entre participantes sem confiança mútua.
-    Exemplos: fóruns de perguntas e respostas, chats, e comércio eletrônico
-              público.
+    Exemplos: fóruns de perguntas e respostas, chats, e compra \& venda online.
 \item \textbf{Grupos Privados}:
     Arranjos privados \Xoo, \Xnn e \Xo.
     Comunicação privada entre pares, grupos ou individuais.
@@ -563,12 +560,12 @@ serem viáveis sob completa descentralização.
 %
 Em grupos privados, todas as postagens são automaticamente criptografadas
 usando uma chave compartilhada entre pares de confiança.
-Nesse caso, o comando \texttt{join} recebe um parâmetro extra com a chave, que
+Nesse caso, o comando \texttt{join} recebe um parâmetro extra com a chave, e
 deve ser executado da mesma forma em todos os pares:
 %
 {\footnotesize
 \begin{verbatim}
-$ freechains chain "$familia" 8889BB...
+$ freechains chains join "\$familia" 8889BB...
 \end{verbatim}
 }
 %
@@ -578,12 +575,19 @@ assinar as mensagens.
 Para cadeias de identidade pública, o nome deve ter o prefixo \texttt{@}
 seguido pela chave pública do autor proprietário da cadeia.
 O proprietário tem reputação infinita e deve assinar todas as mensagens com a
-sua chave privada.
+sua chave privada:
+%
+{\footnotesize
+\begin{verbatim}
+$ freechains chains join "@EB172E..."
+$ freechains chain "@EB172E..." post inline "Olá Mundo" --sign=96700A...
+\end{verbatim}
+}
 
 \subsection{Sistema de Reputação}
 
-Fóruns públicos descentralizados são um convite para usuários maliciosos
-abusarem da rede com SPAM, notícias falsas e conteúdo ilícito.
+Fóruns públicos descentralizados são um convite para o abuso de usuários
+maliciosos com SPAM, notícias falsas e conteúdo ilícito.
 O sistema de reputação do \FC permite somente que usuários com reputação prévia
 possam postar conteúdo novo em uma cadeia.
 Caso contrário, a postagem fica retida no par de origem e precisa ser aprovada
@@ -600,7 +604,7 @@ transferida de diversas formas:
     \begin{enumerate}
     \item A primeira postagem de uma cadeia adiciona $+30~reps$ ao autor.
     \item Qualquer postagem mais antiga que $24h$ conta $+1~rep$ ao autor, mas
-          limitada a uma por dia. Se o autor postou 10 postagens nos últimos 7
+          limitada a uma por dia. Se o autor tem 10 postagens nos últimos 7
           dias, ele recebe somente $+7~reps$.
     %, aka \emph{postagem consolidada},
     \end{enumerate}
@@ -614,17 +618,16 @@ transferida de diversas formas:
     \item Um \emph{like}    partindo do autor \emph{A} à postagem \emph{P} do
           autor \emph{B} conta $-1~rep$ para \emph{A} e $+1~rep$ para \emph{B}.
     \item Um \emph{dislike} partindo do autor \emph{A} à postagem \emph{P} do
-          autor \emph{B} conta $-1~rep$ para \emph{A} e $+1~rep$ para \emph{B}.
+          autor \emph{B} conta $-1~rep$ para \emph{A} e $-1~rep$ para \emph{B}.
           Se uma postagem alcança pelo menos $5$ dislikes e o dobro do número
-          de likes, então o seu conteúdo é escondido da rede.
+          de likes, então o seu conteúdo é bloqueado na rede.
     \end{enumerate}
 \item Regras Adicionais:
     \begin{enumerate}
-    \item Postagens de usuários sem reputação ficam retidas (não são nem
-          encadeadas nem retransmitidas) até receberem um like.
-    \item Um usuário fica limitado a $+30~reps$.
-    \item Para todos os efeitos, somente postagens mais novas que 90 dias são
-          consideradas.
+    \item Postagens de usuários sem reputação ficam retidas até receberem um
+          like, não sendo nem encadeadas nem retransmitidas.
+    \item Usuários ficam limitados a $+30~reps$.
+    \item Somente postagens mais novas que 90 dias são consideradas.
     \item Em cadeias privadas, todos os usuários têm reputação infinita.
     \item Em cadeias de identidade pública, o proprietário tem reputação
           infinita.
@@ -636,7 +639,7 @@ A primeira regra de geração de $reps$ (\texttt{1.a}) é essencial para fazer o
 ninguém possui reputação nenhuma.
 Assim, o autor da primeira postagem molda a cultura inicial da cadeia ao
 transferir sua reputação a outros autores, que por sua vez transferem a outros
-autores, expandindo a comunidade em alguma direção de preferência.
+autores, expandindo a comunidade em alguma direção de predileção.
 %
 Note que cadeias de mesmo nome mas com primeiros autores diferentes são
 incompatíveis e o protocolo se recusa a sincronizá-las.
@@ -672,35 +675,35 @@ Um usuário pode desgostar de uma postagem por considerá-la ofensiva, SPAM,
 falsa, ilícita, ou por simples desacordo.
 Por um lado, como os $reps$ são finitos, os usuários devem ponderar e evitar o
 seu gasto indiscriminado.
-Por outro lado, os $reps$ também expiram após 3 meses, então os usuários tem
-incentivos para cooperar com a qualidade das cadeias.
+Por outro lado, os $reps$ também expiram após 3 meses (regra~\texttt{4.c}),
+então os usuários tem incentivos para cooperar com a qualidade das cadeias.
 Um conteúdo pode ser banido quando o número de dislikes supera em muito o
 número de likes.
 Considerando que os $reps$ são escassos, o banimento de postagens não tem o
 objetivo de eliminar discordâncias de opinião, mas sim de evitar a atuação de
 usuários maliciosos.
 
-O sistema de reputação do \FC busca oferecer oportunidades de participação nas
-cadeias minimamente justas.
+O sistema de reputação do \FC busca oferecer oportunidades minimamente justas
+de participação nas cadeias.
 Por isso, restringe o número de postagens de um dado autor de duas maneiras:
     (1) penaliza postagens com menos de $24h$ (regra~\texttt{2.a}); e
-    (2) limita o ganho de reputação por postagens novas em $1 rep$ por dia
+    (2) limita o ganho de reputação por postagens novas em $1~rep$ por dia
         (regra~\texttt{1.b}).
-A primeira maneira previne que um mesmo autor poste muitas mensagens em
-sequência sob a pena de consumir a sua própria reputação muito rapidamente.
+A primeira regra previne que um mesmo autor poste muitas mensagens em sequência
+sob a pena de consumir a sua própria reputação muito rapidamente.
 A segunda evita o acúmulo de reputação simplesmente por postar com muita
 frequência.
 
 O tamanho da ``economia'' de uma cadeia é a sua quantidade de postagens
 consolidadas (regra~\texttt{1.b}), dado que postagens com mais de $24h$ são a
 única forma de gerar $reps$.
-Isso porque likes e dislikes apenas transferem reputação e a reputação inicial
-se torna insignificante com o tempo.
+Note que likes e dislikes apenas transferem reputação e a reputação inicial do
+primeiro autor se torna insignificante com o passar do tempo.
 A economia também depende muito da quantidade de autores ativos, uma vez que
 a geração de $reps$ por autor é limitada a $1$ por dia.
 Esse mecanismo incentiva o acolhimento de novos autores a contribuírem, ao
-mesmo tempo que desincentiva dislikes pois drenam $2~reps$ da economia
-(regra~\texttt{3.b}).
+mesmo tempo que desincentiva dislikes pois estes drenam $2~reps$ da economia
+para o limbo (regra~\texttt{3.b}).
 Por um lado, esse desincentivo contribui para discussões com um nível razoável
 de desacordo, pois evita o colapso da cadeia com um surto de dislikes.
 Por outro lado, conteúdos claramente indesejados como SPAM de usuários que
