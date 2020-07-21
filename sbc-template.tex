@@ -160,8 +160,7 @@ disponíveis em \url{https://github.com/Freechains/README}.
 %\subsection{Middlewares Publish-Subscribe}
 
 Os middlewares publish-subscribe desacoplam produtores (\emph{publishers}) de
-consumidores (\emph{subscribers}) através de um intermediário
-(broker)~\cite{TODO}.
+consumidores (\emph{subscribers}) através de um intermediário (broker).
 Exemplos de sistemas pubsub incluem o \emph{XMPP}, \emph{AMQP}, \emph{WebSub} e
 \emph{ActivityPub}.
 Uma limitação chave em \emph{pubsubs} é que, embora produtores e consumidores
@@ -189,9 +188,9 @@ notícias falsas, conteúdo legal e etc.
 
 %\subsection{Protocolos e Aplicações Federadas}
 
-Em protocolos federados~\cite{TODO}, múltiplos servidores se sincronizam para
-permitir a comunicação externa entre seus usuários, mas a identidade de um
-usuário ainda é atrelada a um servidor específico.
+Em protocolos federados, múltiplos servidores se sincronizam para permitir a
+comunicação externa entre seus usuários, mas a identidade de um usuário ainda é
+atrelada a um servidor específico.
 O serviço de e-mail (SMTP) é provavelmente o protocolo federado mais popular e
 permite que usuários de domínios diferentes troquem mensagens de maneira
 transparente.
@@ -248,8 +247,11 @@ Em sistemas peer-to-peer, todos os pares da rede desempenham as mesmas funções
 e atuam ora como clientes, ora como servidores.
 O \emph{Bitcoin}~\cite{p2p.bitcoin} é provavelmente a rede peer-to-peer de
 maior sucesso, mas serve a um propósito muito específico.
-O \emph{Scuttlebutt}~\cite{p2p.scuttlebutt} e \emph{Aether}~\cite{TODO} atendem
-aos cenários de comunicação entre amigos e grupos.
+O \emph{Scuttlebutt}~\cite{p2p.scuttlebutt} e
+\emph{Aether}\footnote{\url{https://getaether.net/}} atendem aos cenários de
+comunicação entre amigos e grupos, focando respectivamente, na comunicação
+pública \Xon e \Xnn.
+\begin{comment}
 Já o IPFS~\cite{p2p.ipfs} e Dat~\cite{p2p.dat} oferecem hospedagem de arquivos
 e aplicações.
 O IPFS é baseado no conceito de dados imutáveis com endereçamento por conteúdo,
@@ -257,15 +259,14 @@ enquanto que o Dat em dados mutáveis com endereçamento por chave pública.
 O IPFS é mais adequado para compartilhar arquivos grandes e estáveis, tais como
 filmes e versões de software, enquanto que o Dat, para conteúdo dinâmico como
 aplicações web.
-Ambos usam \emph{DHTs}~\cite{TODO} como base de suas arquiteturas, sendo
-portanto otimizadas para servir conteúdos grandes e populares, mas não tanto
-para buscas e descobrimento de conteúdo novo~\cite{TODO}.
+Ambos usam \emph{DHTs} como base de suas arquiteturas, sendo portanto
+otimizadas para servir conteúdos grandes e populares, mas não tanto para buscas
+e descobrimento de conteúdo novo~\cite{p2p.survey}.
 %Ambos também requerem que os usuários saibam de antemão o endereço do conteúdo,
 %seja o link exato de um filme, seja uma identidade em particular da rede.
 Por essa razão, DHTs não são a melhor arquitetura para modelar atualizações
 contínuas de conteúdo com múltiplos autores, tais como em fóruns públicos.
 %Os sistemas a seguir não usam DHTs em sua arquitetura.
-\begin{comment}
 O Bitcoin tem uma propriedade muito forte de garantir que as mensagens da rede
 são ordenadas e que essa ordem é exatamente a mesma em todos os pares, ou seja,
 que há um consenso global sobre o estado da rede.
@@ -276,12 +277,12 @@ rede sob controle de poucos pares, afetando o objetivo principal de
 descentralização.
 O \FC usa um sistema de reputação próprio para evitar SPAM e ataques
 sybil.
-\end{comment}
-%O sistema é apresentado na Seção XX e pode ser entendido como uma prova de
-%trabalho para humanos: um autor precisa “trabalhar” para postar conteúdo de
-%qualidade por sua vez é avaliado por outros humanos.
+O sistema é apresentado na Seção XX e pode ser entendido como uma prova de
+trabalho para humanos: um autor precisa “trabalhar” para postar conteúdo de
+qualidade por sua vez é avaliado por outros humanos.
 Dentre os trabalhos discutidos, o Scuttlebutt e Aether são os mais similares ao
 \FC, e focam, respectivamente, na comunicação pública \Xon e \Xnn.
+\end{comment}
 O Scuttlebutt é baseado em identidades de usuários que se seguem par a par e
 formam um grafo que se reflete tanto nas conexões de rede quanto no
 armazenamento redundante dos seus dados.
@@ -290,16 +291,17 @@ armazenamento redundante dos seus dados.
 %também armazena todas as postagens de \emph{B} localmente.
 %As relações são assimétricas, permitindo que \emph{B} não siga \emph{A}
 %necessariamente no exemplo dado.
-O \FC se baseia em tópicos, mas como um tópico pode ser de propriedade de uma
-identidade, então é possível modelar o mesmo comportamento do Scuttlebutt.
 %A topologia de rede do \FC também se baseia em conexões par a par, mas
 %não necessariamente entre seguidores.
 Já o Aether se organiza em comunidades em torno de tópicos, com postagens
 replicadas na rede, mas que são efêmeras considerando uma janela de tempo.
 O Aether usa prova de trabalho nas postagens para evitar SPAM e elege
 moderadores para prevenir comportamento abusivo.
-Já o \FC introduz um sistema de reputação distribuído para lidar com abuso
-conforme discutido na Seção~\ref{sec.freechains.reps}.
+%
+O \FC também se baseia em tópicos, mas como um tópico pode ser de propriedade
+de uma identidade, então é possível modelar o comportamento do Scuttlebutt.
+\FC introduz um sistema de reputação distribuído para lidar com abuso conforme
+discutido na Seção~\ref{sec.freechains.reps}.
 
 \section{Visão Geral do \FC}
 \label{sec.freechains}
@@ -314,7 +316,7 @@ A Figura~\ref{fig.all} ilustra os quatro conceitos básicos do \FC:
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=.65\textwidth]{all1.png}
+\includegraphics[width=.60\textwidth]{all1.png}
 \caption{\scriptsize{Conceitos básicos do \FC: cadeias, blocos, autores e pares.}}
 \label{fig.all}
 \end{figure}
@@ -458,23 +460,7 @@ Mais tecnicamente, um bloco é uma estrutura de dados que persiste uma única
 mensagem na cadeia.
 Ele se encadeia às postagens anteriores e é encadeado pelas próximas postagens.
 A Figura~\ref{fig.block} ilustra o encadeamento de blocos no grafo da cadeia e
-o trecho a seguir mostra a representação interna de um bloco:
-%
-{\footnotesize
-\begin{verbatim}
-data Block:
-    msg   : String              ; (1)
-    sign? : (HKey,String)       ; (2)
-    meta  :                     ; (3)
-        time  : Long
-        msg   : (Bool,Hash)
-        like? : (Hash,Int)
-        backs : Array<Hash>
-    hash  : Hash                ; (4)
-\end{verbatim}
-}
-%
-As quatro partes enumeradas acima são as seguintes:
+mostra a representação interna de um bloco com quatro campos enumerados:
 %
 \begin{enumerate}
 \item[msg:]  O conteúdo da mensagem propriamente dita.
@@ -492,7 +478,7 @@ As quatro partes enumeradas acima são as seguintes:
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=.65\textwidth]{block.png}
+\includegraphics[width=.90\textwidth]{block1.png}
 \caption{\scriptsize{Bloco (centro) se encadeia aos anteriores (esq.) e é encadeado
          pelos próximos (dir.).}}
 \label{fig.block}
@@ -574,8 +560,8 @@ $ freechains chain "@EB172E..." post inline "Bom Dia!" --sign=96700A...
 
 Fóruns públicos descentralizados são um convite para o abuso de usuários
 maliciosos com SPAM, notícias falsas e conteúdo ilícito.
-O sistema de reputação do \FC permite somente que usuários com reputação prévia
-possam postar conteúdo novo em uma cadeia.
+O sistema de reputação do \FC permite que somente usuários com reputação prévia
+postem conteúdo novo em uma cadeia.
 Caso contrário, a postagem fica retida no par de origem e precisa ser aprovada
 por algum usuário com reputação para ser disseminada na rede.
 Cada cadeia é controlada por um sistema autônomo que contabiliza a quantidade
@@ -605,8 +591,8 @@ transferida de diversas formas:
           autor \emph{B} conta $-1~rep$ para \emph{A} e $+1~rep$ para \emph{B}.
     \item Um \emph{dislike} partindo do autor \emph{A} à postagem \emph{P} do
           autor \emph{B} conta $-1~rep$ para \emph{A} e $-1~rep$ para \emph{B}.
-          Se uma postagem alcança pelo menos $5$ dislikes e o dobro do número
-          de likes, então o seu conteúdo é bloqueado na rede.
+          Se uma postagem alcança pelo menos $5$ dislikes que totalizem o dobro
+          do número de likes, então o seu conteúdo é bloqueado na rede.
     \end{enumerate}
 \item Regras Adicionais:
     \begin{enumerate}
@@ -625,7 +611,7 @@ A primeira regra de geração de $reps$ (\texttt{1.a}) é essencial para fazer o
 ninguém possui reputação nenhuma.
 Assim, o autor da primeira postagem molda a cultura inicial da cadeia ao
 transferir sua reputação a outros autores, que por sua vez transferem a outros
-autores, expandindo a comunidade em alguma direção de predileção.
+autores, expandindo a comunidade em alguma direção.
 %
 Note que cadeias de mesmo nome mas com primeiros autores diferentes são
 incompatíveis e o protocolo se recusa a sincronizá-las.
@@ -638,7 +624,7 @@ existente na cadeia:
 %
 {\footnotesize
 \begin{verbatim}
-$ freechains chain "#chat" like 12AB5C... --sign=96700A...
+$ freechains chain "#chat" like 2_12AB5C... --sign=96700A...
 \end{verbatim}
 }
 %
@@ -650,8 +636,8 @@ autor ou identificador hash da postagem a ser consultada:
 %
 {\footnotesize
 \begin{verbatim}
-$ freechains chain "#chat" reps 12AB5C...
-5   <-- reputacao da postagem
+$ freechains chain "#chat" reps 2_12AB5C...
+1   <-- reputacao da postagem
 \end{verbatim}
 }
 
@@ -664,7 +650,7 @@ seu gasto indiscriminado.
 Por outro lado, os $reps$ também expiram após 3 meses (regra~\texttt{4.c}),
 então os usuários tem incentivos para cooperar com a qualidade das cadeias.
 Um conteúdo pode ser banido quando o número de dislikes supera em muito o
-número de likes.
+número de likes (regra \texttt{3.b}).
 Considerando que os $reps$ são escassos, o banimento de postagens não tem o
 objetivo de eliminar discordâncias de opinião, mas sim de evitar a atuação de
 usuários maliciosos.
@@ -687,9 +673,9 @@ Note que likes e dislikes apenas transferem reputação e a reputação inicial 
 primeiro autor se torna insignificante com o passar do tempo.
 A economia também depende muito da quantidade de autores ativos, uma vez que
 a geração de $reps$ por autor é limitada a $1$ por dia.
-Esse mecanismo incentiva o acolhimento de novos autores a contribuírem, ao
-mesmo tempo que desincentiva dislikes pois estes drenam $2~reps$ da economia
-para o limbo (regra~\texttt{3.b}).
+Esse mecanismo incentiva o acolhimento de novos autores a contribuírem com a
+cadeia, ao mesmo tempo que desincentiva dislikes pois estes drenam $2~reps$ da
+economia para o limbo (regra~\texttt{3.b}).
 Por um lado, esse desincentivo contribui para discussões com um nível razoável
 de desacordo, pois evita o colapso da cadeia com um surto de dislikes.
 Por outro lado, conteúdos claramente indesejados como SPAM de usuários que
@@ -723,11 +709,11 @@ Essas duas aplicações simulam os arranjos públicos \Xnn e \Xon,
 respectivamente.
 
 Ainda não temos uma avaliação da eficácia do sistema de reputação, uma vez que
-ele depende do interação entre humanos nas cadeias de conteúdo, o que não
-permite uma simulação automatizada.
+ele depende do interação subjetiva entre humanos nas cadeias de conteúdo, o que
+não permite uma simulação automatizada.
 Pretendemos desenvolver aplicações mais reais, tais como um chat e um wikipedia
-distribuído em um domínio específico para analisar qualitativamente a evolução
-da reputação dos autores e postagens.
+distribuído para analisar qualitativamente a evolução da reputação dos autores
+e postagens.
 
 \bibliographystyle{sbc}
 \bibliography{sbc-template}
