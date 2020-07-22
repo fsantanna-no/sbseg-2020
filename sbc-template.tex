@@ -33,8 +33,15 @@ http://sbseg.sbc.org.br/2020/pt/chamadas/ferramentas.html
 
 \title{\FC: Disseminação de Conteúdo Peer-to-Peer}
 
-\author{Francisco Sant'Anna\inst{1}}
-\address{UERJ - Departamento de Ciência da Computação}
+\author {
+    Francisco Sant'Anna,
+    Fabio Bosisio,
+    Lucas Pires
+}
+\address {
+    UERJ - Departamento de Ciência da Computação
+    \email{francisco@ime.uerj.br, fbosisio@gmail.com, lucasampires@gmail.com}
+}
 
 \begin{document} 
 
@@ -85,19 +92,16 @@ alternativa aos serviços centralizados, eliminando intermediários e movendo
 para os usuários finais toda a responsabilidade pela transferência,
 armazenamento, disponibilidade e validação do conteúdo disseminado.
 No entanto, há diversos novos desafios quando o sistema fica espalhado pelas
-bordas da rede:
-    como distribuir e replicar a infraestrutura de conectividade e
-    armazenamento;
-    como conectar usuários com boa performance;
-    como lidar com pares (\emph{peers}) maliciosos na rede;
-    e como investir na usabilidade do sistema sem um modelo de negócio.
+bordas da rede, tais como distribuir adequadamente a infraestrutura de
+conectividade e armazenamento, lidar com pares (\emph{peers}) maliciosos na
+rede, e investir na usabilidade do sistema sem um modelo de negócio.
 
 Neste trabalho, apresentamos o \emph{\FC} como uma ferramenta para a
 disseminação de conteúdo peer-to-peer sem intermediação ou controle de acesso
 centralizado, e sem a necessidade de confiança entre seus usuários.
 No \FC, um usuário posta uma mensagem em um tópico, também chamado de
-cadeia, e todos os outros assinantes daquela cadeia eventualmente recebem a
-mensagem.
+cadeia, e todos os outros assinantes daquela cadeia na mesma rede peer-to-peer
+eventualmente recebem a mensagem.
 O \FC apresenta duas contribuições principais: (1) um protocolo mínimo para
 múltiplos arranjos de disseminação de conteúdo e (2) um sistema de reputação
 autônomo e descentralizado.
@@ -106,18 +110,18 @@ Sobre a primeira contribuição, o \FC possibilita diversos arranjos de
 disseminação de conteúdo entre seus usuários:
 %
 \begin{itemize}
-\item \textbf{Arranjos públicos \Xon e \Xno:}
+\item Arranjos públicos \Xon e \Xno:
     Uma identidade pública (ex., pessoa ou organização) dissemina conteúdo
     autenticado para um público alvo (\Xon) com feedback opcional (\Xno).
     Exemplos são sites de notícias, serviços de streaming e perfis públicos em
     redes sociais.
-\item \textbf{Arranjos privados \Xoo, \Xnn e \Xo:}
+\item Arranjos privados \Xoo, \Xnn e \Xo:
     Grupos de confiança (ex., amigos ou familiares) trocam mensagens privadas
     entre si.
     A comunicação pode ser em pares (\Xoo), grupos (\Xnn) ou até mesmo
     individuais (\Xo).
     Exemplos são e-mails, grupos de família e backup de documentos.
-\item \textbf{Arranjos públicos \Xnn:}
+\item Arranjos públicos \Xnn:
     Grupos heterogêneos se comunicam publicamente. Exemplos são fóruns de
     perguntas e respostas, chats, e compra \& venda online.
 \end{itemize}
@@ -160,7 +164,7 @@ disponíveis em \url{https://github.com/Freechains/README}.
 %\subsection{Middlewares Publish-Subscribe}
 
 Os middlewares publish-subscribe desacoplam produtores (\emph{publishers}) de
-consumidores (\emph{subscribers}) através de um intermediário (broker).
+consumidores (\emph{subscribers}) através de um intermediário (\emph{broker}).
 Exemplos de sistemas pubsub incluem o \emph{XMPP}, \emph{AMQP}, \emph{WebSub} e
 \emph{ActivityPub}.
 Uma limitação chave em \emph{pubsubs} é que, embora produtores e consumidores
@@ -296,7 +300,8 @@ armazenamento redundante dos seus dados.
 Já o Aether se organiza em comunidades em torno de tópicos, com postagens
 replicadas na rede, mas que são efêmeras considerando uma janela de tempo.
 O Aether usa prova de trabalho nas postagens para evitar SPAM e elege
-moderadores para prevenir comportamento abusivo.
+moderadores para prevenir comportamento abusivo.%
+\footnote{\url{https://blog.getaether.net/post/187829323237/aether-p2p-dev14-released-with-moderation}}
 %
 O \FC também se baseia em tópicos, mas como um tópico pode ser de propriedade
 de uma identidade, então é possível modelar o comportamento do Scuttlebutt.
