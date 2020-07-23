@@ -62,8 +62,8 @@ Cada tópico público conta com um sistema descentralizado de reputação para
 combater abusos, tais como SPAM e notícias falsas.
 %Autores precisam de reputação prévia para postar novo conteúdo, que ainda assim
 %pode ser removido se a proporção entre \emph{likes \& dislikes} for muito baixa.
-O \FC executa como um \emph{daemon} nos pares da rede e permite
-interações pela linha de comando, API em Kotlin ou sockets.
+O \FC executa como um \emph{daemon} nos pares da rede e pode ser acessado pela
+linha de comando, API em Kotlin ou sockets.
 \end{abstract}
      
 %\begin{resumo}
@@ -71,12 +71,12 @@ interações pela linha de comando, API em Kotlin ou sockets.
 
 \section{Introdução}
 
-Apesar do crescimento contínuo da internet ao longo dos anos, o seu conteúdo
-disponível está cada vez mais sob o controle de poucas
+Apesar do crescimento contínuo da internet ao longo dos anos, o conteúdo
+disseminado está cada vez mais sob o controle de poucas
 empresas~\cite{internet.fixing}.
-Consideramos como conteúdo qualquer tipo de informação ou interação na
-internet, tais como trocas de e-mails, consumo de notícias, interações em redes
-sociais, ou até mesmo backup de documentos.
+Consideramos como disseminação de conteúdo qualquer tipo interação na internet,
+tais como trocas de e-mails, consumo de notícias, diálogos em redes sociais,
+ou até mesmo backup de documentos.
 %
 As empresas de internet tipicamente são somente intermediárias entre seus
 usuários, mas não criam conteúdo original.
@@ -100,7 +100,7 @@ Neste trabalho, apresentamos o \emph{\FC} como uma ferramenta para a
 disseminação de conteúdo peer-to-peer sem intermediação ou controle de acesso
 centralizado, e sem a necessidade de confiança entre seus usuários.
 No \FC, um usuário posta uma mensagem em um tópico, também chamado de
-cadeia, e todos os outros assinantes daquela cadeia na mesma rede peer-to-peer
+cadeia, e todos os outros assinantes alcançaveis na rede peer-to-peer
 eventualmente recebem a mensagem.
 O \FC apresenta duas contribuições principais: (1) um protocolo mínimo para
 múltiplos arranjos de disseminação de conteúdo e (2) um sistema de reputação
@@ -138,7 +138,7 @@ objetivos:
 \begin{itemize}
 \item Combater o excesso de conteúdo restringindo o número de postagens por autor.
 \item Destacar o conteúdo de qualidade com um mecanismo de \emph{likes \& dislikes}.
-\item Combater SPAM, notícias falsas e conteúdo ilícito demandando reputação
+\item Combater SPAM, notícias falsas e conteúdo ilícito exigindo reputação
       prévia de autores e removendo postagens com proporção muito baixa entre
       likes e dislikes.
 \end{itemize}
@@ -150,9 +150,8 @@ disponíveis em \url{https://github.com/Freechains/README}.
 
 A Seção~\ref{sec.related} compara o \FC com sistemas \emph{pubsub}, protocolos
 federados e outras aplicações peer-to-peer.
-A Seção~\ref{sec.freechains} apresenta o funcionamento básico do \FC e
-apresenta uma discussão sobre os arranjos de disseminação e o sistema de
-reputação.
+A Seção~\ref{sec.freechains} apresenta o funcionamento básico do \FC além de
+uma discussão sobre os arranjos de disseminação e o sistema de reputação.
 A Seção~\ref{sec.conclusion} conclui o trabalho.
 
 \section{Comparação com Outros Sistemas}
@@ -166,9 +165,9 @@ A Seção~\ref{sec.conclusion} conclui o trabalho.
 
 Os middlewares publish-subscribe desacoplam produtores (\emph{publishers}) de
 consumidores (\emph{subscribers}) através de um intermediário (\emph{broker}).
-Exemplos de sistemas pubsub incluem o \emph{XMPP}, \emph{AMQP}, \emph{WebSub} e
-\emph{ActivityPub}.
-Uma limitação chave em \emph{pubsubs} é que, embora produtores e consumidores
+Exemplos de sistemas \emph{pubsub} incluem o \emph{XMPP}, \emph{AMQP},
+\emph{WebSub} e \emph{ActivityPub}.
+Uma limitação chave em pubsubs é que, embora produtores e consumidores
 se comuniquem sem conhecimento mútuo, os brokers ainda possuem um papel
 centralizador na rede.
 Eles são necessários para autenticar e validar as postagens, por exemplo, além
@@ -306,8 +305,8 @@ moderadores para prevenir comportamento abusivo.%
 %
 O \FC também se baseia em tópicos, mas como um tópico pode ser de propriedade
 de uma identidade, então é possível modelar o comportamento do Scuttlebutt.
-\FC introduz um sistema de reputação distribuído para lidar com abuso conforme
-discutido na Seção~\ref{sec.freechains.reps}.
+Além diss, introduz um sistema de reputação distribuído para lidar com abuso
+conforme discutido na Seção~\ref{sec.freechains.reps}.
 
 \section{Visão Geral do \FC}
 \label{sec.freechains}
@@ -330,8 +329,8 @@ A Figura~\ref{fig.all} ilustra os quatro conceitos básicos do \FC:
 As \emph{cadeias}, destacadas em quadrados coloridos (vermelho/A, verde/B e
 amarelo/C), são independentes umas das outras e podem representar, por exemplo,
 os \emph{tweets} de uma personalidade (arranjo \Xon público), um grupo de
-\emph{Whatsapp} de amigos (arranjo \Xnn privado) ou um \emph{subreddit} em
-torno de um interesse em comum (arranjo \Xnn público).
+\emph{Whatsapp} de amigos (arranjo \Xnn privado) ou um \emph{subreddit} de um
+tema qualquer (arranjo \Xnn público).
 
 Cada cadeia possui um conjunto de \emph{blocos} com suas postagens, que estão
 destacadas como elipses coloridas (roxo/1.x, vermelho/2.x e verde/3.x), em que
@@ -397,7 +396,7 @@ $ freechains chains join "#chat"    # se inscreve na cadeia #chat
 $ freechains chain "#chat" post inline "Bom Dia!" --sign=96700A...
 \end{verbatim}
 }
-
+%
 Após iniciar o daemon, o usuário cria uma identidade para si.
 A chave pública pode ser compartilhada e a chave privada deve ser guardada em
 segredo.
@@ -413,8 +412,8 @@ $ freechains peer 10.0.0.2 recv "#chat"  # recebe #chat  de  10.0.0.2
 \end{verbatim}
 }
 %
-Para ler as postagens de uma cadeia, é necessário primeiro identificar os
-blocos não lidos:
+Para ler as postagens de uma cadeia, primeiro identificamos os blocos não
+lidos:
 %
 {\footnotesize
 \begin{verbatim}
@@ -462,8 +461,7 @@ sincronização.
 comandos \texttt{listen}, \texttt{send} e \texttt{recv} para se sincronizar
 assim que uma nova mensagem é postada ou recebida.
 
-Mais tecnicamente, um bloco é uma estrutura de dados que persiste uma única
-mensagem na cadeia.
+Um bloco é uma estrutura de dados que persiste uma única mensagem na cadeia.
 Ele se encadeia às postagens anteriores e é encadeado pelas próximas postagens.
 A Figura~\ref{fig.block} ilustra o encadeamento de blocos no grafo da cadeia e
 mostra a representação interna de um bloco com quatro campos enumerados:
@@ -532,8 +530,8 @@ O tipo da cadeia é determinado pelo prefixo em seu nome:
 
 Em fóruns públicos, as mensagens circulam entre usuários e pares sem confiança
 mútua.
-Por essa razão, cadeias desse tipo dependem do sistema de reputação do \FC para
-serem viáveis sob completa descentralização.
+Por essa razão, cadeias desse tipo dependem do sistema de reputação do \FC
+apresentado a seguir para serem viáveis sob completa descentralização.
 %
 Em grupos privados, todas as postagens são automaticamente criptografadas
 usando uma chave compartilhada entre os pares de confiança.
@@ -564,7 +562,7 @@ $ freechains chain "@EB172E..." post inline "Bom Dia!" --sign=96700A...
 \subsection{Sistema de Reputação}
 \label{sec.freechains.reps}
 
-Fóruns públicos descentralizados são um convite para o abuso de usuários
+Fóruns públicos descentralizados são um convite ao abuso por parte de usuários
 maliciosos com SPAM, notícias falsas e conteúdo ilícito.
 O sistema de reputação do \FC permite que somente usuários com reputação prévia
 postem conteúdo novo em uma cadeia.
@@ -612,9 +610,9 @@ transferida de diversas formas:
     \end{enumerate}
 \end{enumerate}
 %
-A primeira regra de geração de $reps$ (\texttt{1.a}) é essencial para fazer o
-``bootstrap'' de uma cadeia, uma vez que seria impossível realizar postagens se
-ninguém possui reputação nenhuma.
+A primeira regra de geração de $reps$ (regra~\texttt{1.a}) é essencial para
+fazer o ``bootstrap'' de uma cadeia, uma vez que seria impossível realizar
+postagens se ninguém possui reputação nenhuma (regra~\texttt{4.a}).
 Assim, o autor da primeira postagem molda a cultura inicial da cadeia ao
 transferir sua reputação a outros autores, que por sua vez transferem a outros
 autores, expandindo a comunidade em alguma direção.
@@ -649,14 +647,14 @@ $ freechains chain "#chat" reps 2_12AB5C...
 
 A qualidade das postagens é subjetiva e cabe aos usuários as julgarem com
 likes, dislikes ou simples abstenções.
-Um usuário pode desgostar de uma postagem por considerá-la ofensiva, SPAM,
-falsa, ilícita, ou por simples desacordo.
+Um usuário pode desgostar de uma postagem por considerá-la ofensiva ou por
+simples desacordo.
 Por um lado, como os $reps$ são finitos, os usuários devem ponderar e evitar o
 seu gasto indiscriminado.
 Por outro lado, os $reps$ também expiram após 3 meses (regra~\texttt{4.c}),
 então os usuários tem incentivos para cooperar com a qualidade das cadeias.
 Um conteúdo pode ser banido quando o número de dislikes supera em muito o
-número de likes (regra \texttt{3.b}).
+número de likes (regra~\texttt{3.b}).
 Considerando que os $reps$ são escassos, o banimento de postagens não tem o
 objetivo de eliminar discordâncias de opinião, mas sim de evitar a atuação de
 usuários maliciosos.
@@ -679,13 +677,13 @@ Note que likes e dislikes apenas transferem reputação e a reputação inicial 
 primeiro autor se torna insignificante com o passar do tempo.
 A economia também depende muito da quantidade de autores ativos, uma vez que
 a geração de $reps$ por autor é limitada a $1$ por dia.
-Esse mecanismo incentiva o acolhimento de novos autores a contribuírem com a
-cadeia, ao mesmo tempo que desincentiva dislikes pois estes drenam $2~reps$ da
-economia para o limbo (regra~\texttt{3.b}).
+Esse mecanismo incentiva o acolhimento de novos autores, ao mesmo tempo que
+desincentiva dislikes pois estes drenam $2~reps$ da economia para o limbo
+(regra~\texttt{3.b}).
 Por um lado, esse desincentivo contribui para discussões com um nível razoável
 de desacordo, pois evita o colapso da cadeia com um surto de dislikes.
 Por outro lado, conteúdos claramente indesejados como SPAM de usuários que
-pouco contribuíram são banidos rapidamente da cadeia com poucos dislikes
+pouco contribuíram podem ser banidos rapidamente da cadeia com poucos dislikes
 (regra~\texttt{3.b}).
 
 \section{Conclusão}
@@ -694,7 +692,7 @@ pouco contribuíram são banidos rapidamente da cadeia com poucos dislikes
 O \FC é um protocolo peer-to-peer para disseminação de conteúdo com duas
 contribuições principais.
 A primeira é um protocolo mínimo para múltiplos arranjos de disseminação:
-arranjos públicos \Xon e \Xno, Arranjos privados \Xoo, \Xnn e \Xo, e arranjos
+arranjos públicos \Xon e \Xno, arranjos privados \Xoo, \Xnn e \Xo, e arranjos
 públicos \Xnn.
 A segunda é um sistema de reputação autônomo e descentralizado para combater
 o abuso e destacar conteúdo de qualidade.
@@ -715,7 +713,7 @@ Essas duas aplicações simulam os arranjos públicos \Xnn e \Xon,
 respectivamente.
 
 Ainda não temos uma avaliação da eficácia do sistema de reputação, uma vez que
-ele depende do interação subjetiva entre humanos nas cadeias de conteúdo, o que
+ele depende da interação subjetiva entre humanos nas cadeias de conteúdo, o que
 não permite uma simulação automatizada.
 Pretendemos desenvolver aplicações mais reais, tais como um chat e um wikipedia
 distribuído para analisar qualitativamente a evolução da reputação dos autores
