@@ -91,10 +91,10 @@ Sistemas de disseminação \emph{peer-to-peer}~\cite{p2p.survey} oferecem uma
 alternativa aos serviços centralizados, eliminando intermediários e movendo
 para os usuários finais toda a responsabilidade pela transferência,
 armazenamento, disponibilidade e validação do conteúdo disseminado.
-No entanto, há diversos novos desafios quando o sistema fica espalhado pelas
-bordas da rede, tais como distribuir adequadamente a infraestrutura de
-conectividade e armazenamento, lidar com pares (\emph{peers}) maliciosos na
-rede, e investir na usabilidade do sistema sem um modelo de negócio.
+No entanto, há diversos novos desafios, tais como distribuir adequadamente a
+infraestrutura de conectividade e armazenamento, lidar com pares (\emph{peers})
+maliciosos na rede, e investir na usabilidade do sistema sem um modelo de
+negócio.
 
 Neste trabalho, apresentamos o \emph{\FC} como uma ferramenta para a
 disseminação de conteúdo peer-to-peer sem intermediação ou controle de acesso
@@ -106,9 +106,13 @@ O \FC apresenta duas contribuições principais: (1) um protocolo mínimo para
 múltiplos arranjos de disseminação de conteúdo e (2) um sistema de reputação
 autônomo e descentralizado.
 %
-Sobre a primeira contribuição, o \FC possibilita diversos arranjos de
-disseminação de conteúdo entre seus usuários:
+Sobre a primeira contribuição, a Figura~\ref{fig.table} descreve os diversos
+arranjos de disseminação entre seus usuários:
+    arranjos públicos \Xon e \Xno,
+    arranjos privados \Xoo, \Xnn e \Xo, e
+    arranjos públicos \Xnn.
 %
+\begin{comment}
 \begin{itemize}
 \item Arranjos públicos \Xon e \Xno:
     Uma identidade pública (ex., pessoa ou organização) dissemina conteúdo
@@ -125,6 +129,7 @@ disseminação de conteúdo entre seus usuários:
     Grupos heterogêneos se comunicam publicamente. Exemplos são fóruns de
     perguntas e respostas, chats, e compra \& venda online.
 \end{itemize}
+\end{comment}
 %
 %A API do protocolo é composta basicamente de comandos para assinar cadeias de
 %interesse (\texttt{join}), postar novas mensagens (\texttt{post}), iterar sobre
@@ -147,6 +152,13 @@ O código fonte, documentação e vídeos introdutórios sobre o \FC estão
 disponíveis em \url{https://github.com/Freechains/README}.
 %A ferramenta pode ser demonstrada em um vídeo pré-gravado com a simulação de
 %uma rede peer-to-peer com pares conectados via SSH.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=\textwidth]{table.png}
+\caption{Os 3 tipos de cadeias do \FC}
+\label{fig.table}
+\end{figure}
 
 A Seção~\ref{sec.related} compara o \FC com sistemas \emph{pubsub}, protocolos
 federados e outras aplicações peer-to-peer.
@@ -195,20 +207,21 @@ notícias falsas, conteúdo legal e etc.
 Em protocolos federados, múltiplos servidores se sincronizam para permitir a
 comunicação externa entre seus usuários, mas a identidade de um usuário ainda é
 atrelada a um servidor específico.
+Todo conteúdo poder ser gerenciado localmente nas instâncias da federação e a
+sincronização externa é um passo em separado, mas que não é necessário para o
+funcionamento local.
+%
 O serviço de e-mail (SMTP) é provavelmente o protocolo federado mais popular e
 permite que usuários de domínios diferentes troquem mensagens de maneira
 transparente.
 Mais recentemente, os sistemas \emph{Diaspora}, \emph{Matrix} e \emph{Mastodon}
 cobriram aos cenários de redes sociais, chats e \emph{microblogging} com
 arquiteturas federadas.
-Em sistemas federados, todo conteúdo poder ser gerenciado localmente em suas
-instâncias e a sincronização externa é um passo em separado, mas que não é
-necessário para o funcionamento local.
 %No entanto, a identidade de um usuário não é portável, ou seja, está atrelada a
 %um servidor específico e não pode ser usada transparentemente em outros.
 %, que inclusive podem ter homônimos ativos.
 No entanto, sem o controle de sua própria identidade, um usuário fica refém do
-seu servidor.
+seu servidor na federação.
 Por exemplo, o servidor pode ser desligado pelos seus administradores ou banido
 pelo resto da federação, ou ainda o próprio usuário pode ficar insatisfeito com
 o serviço prestado.
@@ -252,7 +265,7 @@ e atuam ora como clientes, ora como servidores.
 O \emph{Bitcoin}~\cite{p2p.bitcoin} é provavelmente a rede peer-to-peer de
 maior sucesso, mas serve a um propósito muito específico.
 O \emph{Scuttlebutt}~\cite{p2p.scuttlebutt} e
-\emph{Aether}\footnote{\url{https://getaether.net/}} atendem aos cenários de
+\emph{Aether}\footnote{\url{https://getaether.net/}~(acessado em Jul/2020)} atendem aos cenários de
 comunicação entre amigos e grupos, focando respectivamente, na comunicação
 pública \Xon e \Xnn.
 \begin{comment}
@@ -301,7 +314,7 @@ Já o Aether se organiza em comunidades em torno de tópicos, com postagens
 replicadas na rede, mas que são efêmeras considerando uma janela de tempo.
 O Aether usa prova de trabalho nas postagens para evitar SPAM e elege
 moderadores para prevenir comportamento abusivo.%
-\footnote{\url{https://blog.getaether.net/post/187829323237/aether-p2p-dev14-released-with-moderation}}
+\footnote{{\tiny{\url{https://blog.getaether.net/post/187829323237/aether-p2p-dev14-released-with-moderation}}}~(acessado em Jul/2020)}
 %
 O \FC também se baseia em tópicos, mas como um tópico pode ser de propriedade
 de uma identidade, então é possível modelar o comportamento do Scuttlebutt.
@@ -321,14 +334,14 @@ A Figura~\ref{fig.all} ilustra os quatro conceitos básicos do \FC:
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=.60\textwidth]{all1.png}
+\includegraphics[width=.60\textwidth]{all3.png}
 \caption{\scriptsize{Conceitos básicos do \FC: cadeias, blocos, autores e pares.}}
 \label{fig.all}
 \end{figure}
 
 As \emph{cadeias}, destacadas em quadrados coloridos (vermelho/A, verde/B e
 amarelo/C), são independentes umas das outras e podem representar, por exemplo,
-os \emph{tweets} de uma personalidade (arranjo \Xon público), um grupo de
+os \emph{tweets} de uma celebridade (arranjo \Xon público), um grupo de
 \emph{Whatsapp} de amigos (arranjo \Xnn privado) ou um \emph{subreddit} de um
 tema qualquer (arranjo \Xnn público).
 
@@ -386,7 +399,7 @@ um desktop e um celular.
 \end{comment}
 %
 A sequência de comandos a seguir ilustra o funcionamento básico do \FC:
-%
+
 {\footnotesize
 \begin{verbatim}
 $ freechains start /var/fcs/ &      # inicia daemon em background
@@ -396,7 +409,7 @@ $ freechains chains join "#chat"    # se inscreve na cadeia #chat
 $ freechains chain "#chat" post inline "Bom Dia!" --sign=96700A...
 \end{verbatim}
 }
-%
+
 Após iniciar o daemon, o usuário cria uma identidade para si.
 A chave pública pode ser compartilhada e a chave privada deve ser guardada em
 segredo.
@@ -404,17 +417,26 @@ Em seguida o usuário se inscreve na cadeia \texttt{\#chat} e posta uma mensagem
 assinando-a com a sua chave privada.
 Até aqui, tudo ocorre localmente na máquina com o daemon em execução.
 A comunicação com outros pares deve ser feita explicitamente:
-%
+
 {\footnotesize
 \begin{verbatim}
 $ freechains peer 10.0.0.2 send "#chat"  # envia  #chat para 10.0.0.2
 $ freechains peer 10.0.0.2 recv "#chat"  # recebe #chat  de  10.0.0.2
 \end{verbatim}
 }
-%
+
+Note que o \FC não monta a topologia da rede peer-to-peer automaticamente.
+Não há pares pré-configurados, não há \emph{root servers}, não há nenhum tipo
+de descobrimento automático de pares.
+As conexões se dão somente através dos comandos \texttt{send} e \texttt{recv}
+que devem especificar os pares explicitamente.
+Nesse sentido, o protocolo dá o suporte básico para a comunicação par a par,
+mas a montagem da topologia da rede propriamente dita deve ser feita por fora
+do protocolo.
+
 Para ler as postagens de uma cadeia, primeiro identificamos os blocos não
 lidos:
-%
+
 {\footnotesize
 \begin{verbatim}
 $ freechains chain "#chat" genesis                # hash id do genesis
@@ -436,7 +458,7 @@ mais novos na cabeça do grafo e usá-los como âncora na próxima varredura.
 %
 Uma outra forma é checar o conteúdo em tempo real através do comando
 \texttt{listen}:
-%
+
 {\footnotesize
 \begin{verbatim}
 $ freechains chain "#chat" listen   # escuta novos blocos em tempo real
@@ -445,7 +467,7 @@ $ freechains chain "#chat" listen   # escuta novos blocos em tempo real
 2_2144...                           # 3o bloco recebido
 \end{verbatim}
 }
-%
+
 O comando é bloqueante e exibe uma nova linha sempre que um novo bloco chega
 com a sua identificação.
 Esse comando pode ser usado em conjunto com um \emph{pipe} para reagir a novas
@@ -465,7 +487,7 @@ Um bloco é uma estrutura de dados que persiste uma única mensagem na cadeia.
 Ele se encadeia às postagens anteriores e é encadeado pelas próximas postagens.
 A Figura~\ref{fig.block} ilustra o encadeamento de blocos no grafo da cadeia e
 mostra a representação interna de um bloco com quatro campos enumerados:
-%
+
 \begin{enumerate}
 \item[msg:]  O conteúdo da mensagem propriamente dita.
 \item[sign:] Uma assinatura opcional com a chave pública do autor e o código da
@@ -501,16 +523,9 @@ cadeia, sendo igualmente verificável.
 
 \subsection{Arranjos de Disseminação de Conteúdo}
 
-A Figura~\ref{fig.table} descreve os três tipos de cadeia oferecidos pelo \FC:
-identidade pública, grupos privados e fóruns públicos.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=\textwidth]{table.png}
-\caption{Os 3 tipos de cadeias do \FC}
-\label{fig.table}
-\end{figure}
-
+O \FC oferece três tipos de cadeia, conforme apresentado na
+Figura~\ref{fig.table}: identidade pública, grupos privados e fóruns públicos.
+%
 \begin{comment}
 O \FC suporta três tipos de cadeias, cada uma com um propósito diferente:
 %
@@ -532,7 +547,7 @@ O \FC suporta três tipos de cadeias, cada uma com um propósito diferente:
 \end{itemize}
 %
 O tipo da cadeia é determinado pelo prefixo em seu nome:
-%
+
 \begin{itemize}
     \item \textbf{\texttt{\#}}: fórum público (ex., \texttt{\#chat})
     \item \textbf{\texttt{\$}}: grupo privado (ex., \texttt{\$familia})
@@ -549,13 +564,13 @@ Em grupos privados, todas as postagens são automaticamente criptografadas
 usando uma chave compartilhada entre os pares de confiança.
 Nesse caso, o comando \texttt{join} recebe um parâmetro extra com a chave, e
 deve ser executado da mesma forma em todos os pares:
-%
+
 {\footnotesize
 \begin{verbatim}
 $ freechains chains join "\$familia" 8889BB...
 \end{verbatim}
 }
-%
+
 Todos os usuários de grupos privados têm reputação infinita e nem é necessário
 assinar as mensagens.
 %
@@ -563,7 +578,7 @@ Para cadeias de identidade pública, o nome deve ter o prefixo \texttt{@}
 seguido pela chave pública do autor proprietário da cadeia.
 O proprietário tem reputação infinita e deve assinar todas as mensagens com a
 sua chave privada:
-%
+
 {\footnotesize
 \begin{verbatim}
 $ freechains chains join "@EB172E..."
@@ -586,7 +601,7 @@ Como cada cadeia é independente, a reputação de um autor pode variar entre
 elas.
 A unidade de reputação é conhecida como $rep$ e pode ser gerada, consumida e
 transferida de diversas formas:
-%
+
 \begin{enumerate}
 \item Geração:
     \begin{enumerate}
@@ -607,8 +622,9 @@ transferida de diversas formas:
           autor \emph{B} conta $-1~rep$ para \emph{A} e $+1~rep$ para \emph{B}.
     \item Um \emph{dislike} partindo do autor \emph{A} à postagem \emph{P} do
           autor \emph{B} conta $-1~rep$ para \emph{A} e $-1~rep$ para \emph{B}.
-          Se uma postagem alcança pelo menos $5$ dislikes que totalizem o dobro
-          do número de likes, então o seu conteúdo é bloqueado na rede.
+          Se uma postagem alcança o dobro de número de dislikes em relação ao
+          número de likes, e pelo menos 5 dislikes, então o seu conteúdo é
+          bloqueado na rede.
     \end{enumerate}
 \item Regras Adicionais:
     \begin{enumerate}
@@ -621,7 +637,7 @@ transferida de diversas formas:
           infinita.
     \end{enumerate}
 \end{enumerate}
-%
+
 A primeira regra de geração de $reps$ (regra~\texttt{1.a}) é essencial para
 fazer o ``bootstrap'' de uma cadeia, uma vez que seria impossível realizar
 postagens se ninguém possui reputação nenhuma (regra~\texttt{4.a}).
@@ -637,19 +653,19 @@ acabam se unindo através de um par em comum.
 
 Os comandos de \texttt{like} e \texttt{dislike} atuam sobre uma postagem já
 existente na cadeia:
-%
+
 {\footnotesize
 \begin{verbatim}
 $ freechains chain "#chat" like 2_12AB5C... --sign=96700A...
 \end{verbatim}
 }
-%
+
 Nesse caso, o usuário que assinou o like transfere $1~rep$ seu para o autor da
 postagem referenciada (regra~\texttt{3.a}).
 %
 Já o comando \texttt{reps} verifica a reputação passando a chave pública do
 autor ou identificador hash da postagem a ser consultada:
-%
+
 {\footnotesize
 \begin{verbatim}
 $ freechains chain "#chat" reps 2_12AB5C...
