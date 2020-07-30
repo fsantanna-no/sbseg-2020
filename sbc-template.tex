@@ -5,6 +5,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[brazil]{babel}
 \usepackage{verbatim}
+\usepackage[final]{pdfpages}
 %\usepackage[latin1]{inputenc}
 
 % 19/06: http://sbrt.org.br/sbrt2020/cfp.html#cfp
@@ -155,8 +156,12 @@ disponíveis em \url{https://github.com/Freechains/README}.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=\textwidth]{table.png}
-\caption{Os 3 tipos de cadeias do \FC}
+%\includegraphics[width=\textwidth]{arranjos}
+\includegraphics[width=\textwidth]{arranjos.png}
+%\includegraphics[clip, trim=1.75cm 10.25cm 1.5cm 1.75cm, width=1.00\textwidth]{arranjos.pdf}
+%\includepdf[width=\textwidth]{arranjos.pdf}
+%\includepdf[pages=-,pagecommand={},width=\textwidth]{arranjos.pdf}
+\caption{Os 3 tipos de cadeias e arranjos do \FC}
 \label{fig.table}
 \end{figure}
 
@@ -183,7 +188,7 @@ Uma limitação chave em pubsubs é que, embora produtores e consumidores
 se comuniquem sem conhecimento mútuo, os brokers ainda possuem um papel
 centralizador na rede.
 Eles são necessários para autenticar e validar as postagens, por exemplo, além
-de servirem as filas de mensagens que conectam produtores e consumidores.
+de hospedarem as filas de mensagens que conectam produtores e consumidores.
 %As filas são hospedadas em endereços previamente conhecidos (ex.,
 %\url{amqp://user@domain/path}), o que impede uma arquitetura inteiramente
 %distribuída.
@@ -263,7 +268,8 @@ verificações extras.
 Em sistemas peer-to-peer, todos os pares da rede desempenham as mesmas funções
 e atuam ora como clientes, ora como servidores.
 O \emph{Bitcoin}~\cite{p2p.bitcoin} é provavelmente a rede peer-to-peer de
-maior sucesso, mas serve a um propósito muito específico.
+maior sucesso, mas serve ao propósito único de uma criptomoeda descentralizada,
+não sendo adequado para comunicações genéricas entre pares.
 O \emph{Scuttlebutt}~\cite{p2p.scuttlebutt} e
 \emph{Aether}\footnote{\url{https://getaether.net/}~(acessado em Jul/2020)} atendem aos cenários de
 comunicação entre amigos e grupos, focando respectivamente, na comunicação
@@ -317,7 +323,7 @@ moderadores para prevenir comportamento abusivo.%
 \footnote{{\tiny{\url{https://blog.getaether.net/post/187829323237/aether-p2p-dev14-released-with-moderation}}}~(acessado em Jul/2020)}
 %
 O \FC também se baseia em tópicos, mas como um tópico pode ser de propriedade
-de uma identidade, então é possível modelar o comportamento do Scuttlebutt.
+de uma identidade, então é possível modelar o comportamento dos dois sistemas.
 Além disso, introduz um sistema de reputação distribuído para lidar com abuso
 conforme discutido na Seção~\ref{sec.freechains.reps}.
 
@@ -451,10 +457,14 @@ Bom dia!
 O comando \texttt{traverse} retorna todos os blocos mais novos que o(s)
 bloco(s) passados como parâmetro e serve para identificar as postagens que
 ainda não foram lidas.
+Esse controle deve ser feito pelo usuário local, ou seja, este deve manter uma
+lista dos seus últimos blocos lidos e passá-los para o \texttt{traverse} que
+irá retornar os blocos recebidos ainda mais novos.
 Inicialmente, usamos a identificação do bloco gênesis como âncora, já que
 nenhum bloco ainda foi lido pelo usuário.
 Em seguida, é possível usar o comando \texttt{heads} para identificar os blocos
-mais novos na cabeça do grafo e usá-los como âncora na próxima varredura.
+mais novos na cabeça do grafo (que foram os lidos agora) e usá-los como âncora
+na próxima varredura.
 %
 Uma outra forma é checar o conteúdo em tempo real através do comando
 \texttt{listen}:
@@ -545,6 +555,7 @@ O \FC suporta três tipos de cadeias, cada uma com um propósito diferente:
     Exemplos: sites de notícias, serviços de streaming e perfis públicos em
     redes sociais.
 \end{itemize}
+\end{comment}
 %
 O tipo da cadeia é determinado pelo prefixo em seu nome:
 
@@ -553,12 +564,11 @@ O tipo da cadeia é determinado pelo prefixo em seu nome:
     \item \textbf{\texttt{\$}}: grupo privado (ex., \texttt{\$familia})
     \item \textbf{\texttt{@}}: identidade pública (ex., \texttt{@B2853F...})
 \end{itemize}
-\end{comment}
 
 Em fóruns públicos, as mensagens circulam entre usuários e pares sem confiança
 mútua.
 Por essa razão, cadeias desse tipo dependem do sistema de reputação do \FC
-apresentado a seguir para serem viáveis sob completa descentralização.
+(apresentado a seguir) para serem viáveis sob descentralização total.
 %
 Em grupos privados, todas as postagens são automaticamente criptografadas
 usando uma chave compartilhada entre os pares de confiança.
@@ -686,6 +696,15 @@ número de likes (regra~\texttt{3.b}).
 Considerando que os $reps$ são escassos, o banimento de postagens não tem o
 objetivo de eliminar discordâncias de opinião, mas sim de evitar a atuação de
 usuários maliciosos.
+
+Um bloco com um conteúdo banido tem que ser mantido no grafo da cadeia, já que
+a integridade do \FC depende da imutabilidade do grafo.
+Assim, o que deixa de ser retransmitido é o conteúdo do bloco com a mensagem em
+si.
+Note que nada impede que um bloco com conteúdo banido volte a ser retransmitido
+caso recebe likes posteriores.
+Por exemplo, uma parte da rede com diversos likes ficou desconectada por um
+tempo e ao retornar equilibrou a reputação do bloco.
 
 O sistema de reputação do \FC busca oferecer oportunidades minimamente justas
 de participação nas cadeias.
