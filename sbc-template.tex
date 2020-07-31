@@ -49,9 +49,8 @@ http://sbseg.sbc.org.br/2020/pt/chamadas/ferramentas.html
 \maketitle
 
 \begin{abstract}
-O \FC é um sistema peer-to-peer para disseminação de conteúdo: um
-usuário posta uma mensagem em um tópico e seus assinantes eventualmente recebem
-a mensagem.
+O \FC é um sistema peer-to-peer de disseminação de mensagens por tópicos
+através do padrão \emph{publish-subscribe}.
 As postagens são estruturadas em um grafo direcionado acíclico criptográfico
 que é imune a modificações (\emph{Merkle DAG}).
 O grafo é disseminado par a par na rede por \emph{gossip} de maneira não
@@ -63,8 +62,8 @@ Cada tópico público conta com um sistema descentralizado de reputação para
 combater abusos, tais como SPAM e notícias falsas.
 %Autores precisam de reputação prévia para postar novo conteúdo, que ainda assim
 %pode ser removido se a proporção entre \emph{likes \& dislikes} for muito baixa.
-O \FC executa como um \emph{daemon} nos pares da rede e pode ser acessado pela
-linha de comando, API em Kotlin ou sockets.
+%O \FC executa como um \emph{daemon} nos pares da rede e pode ser acessado pela
+%linha de comando, API em Kotlin ou sockets.
 \end{abstract}
      
 %\begin{resumo}
@@ -75,14 +74,14 @@ linha de comando, API em Kotlin ou sockets.
 Apesar do crescimento contínuo da internet ao longo dos anos, o conteúdo
 disseminado está cada vez mais sob o controle de poucas
 empresas~\cite{internet.fixing}.
-Consideramos como disseminação de conteúdo qualquer tipo interação na internet,
-tais como trocas de e-mails, consumo de notícias, diálogos em redes sociais,
-ou até mesmo backup de documentos.
+Consideramos como disseminação de conteúdo qualquer tipo de interação na
+internet, tais como trocas de e-mails, consumo de notícias, diálogos em redes
+sociais, ou até mesmo backup de documentos.
 %
-As empresas de internet tipicamente são somente intermediárias entre seus
-usuários, mas não criam conteúdo original.
-Por um lado, elas são essenciais, oferecendo interfaces amigáveis,
-armazenamento grátis e conectividade permanente.
+%As empresas de internet tipicamente são somente intermediárias entre seus
+%usuários, mas não criam conteúdo original.
+Por um lado, as empresas de internet são essenciais, oferecendo interfaces
+amigáveis, armazenamento grátis e conectividade permanente.
 Por outro lado, essas empresas concentram mais poder do que o necessário para
 operarem, uma vez que controlam nossos dados, coletam informações privadas,
 ``algoritimizam'' o consumo, e ainda dificultam a portabilidade entre serviços
@@ -90,8 +89,9 @@ através de formatos e protocolos proprietários.
 
 Sistemas de disseminação \emph{peer-to-peer}~\cite{p2p.survey} oferecem uma
 alternativa aos serviços centralizados, eliminando intermediários e movendo
-para os usuários finais toda a responsabilidade pela transferência,
-armazenamento, disponibilidade e validação do conteúdo disseminado.
+para os usuários finais toda a responsabilidade pela gerência do conteúdo.
+% pela transferência,
+%armazenamento, disponibilidade e validação do conteúdo disseminado.
 No entanto, há diversos novos desafios, tais como distribuir adequadamente a
 infraestrutura de conectividade e armazenamento, lidar com pares (\emph{peers})
 maliciosos na rede, e investir na usabilidade do sistema sem um modelo de
@@ -108,10 +108,10 @@ múltiplos arranjos de disseminação de conteúdo e (2) um sistema de reputaç�
 autônomo e descentralizado.
 %
 Sobre a primeira contribuição, a Figura~\ref{fig.table} descreve os diversos
-arranjos de disseminação entre seus usuários:
-    arranjos públicos \Xon e \Xno,
-    arranjos privados \Xoo, \Xnn e \Xo, e
-    arranjos públicos \Xnn.
+arranjos de disseminação públicos e privados entre seus usuários.
+    %arranjos públicos \Xon e \Xno,
+    %arranjos privados \Xoo, \Xnn e \Xo, e
+    %arranjos públicos \Xnn.
 %
 \begin{comment}
 \begin{itemize}
@@ -140,7 +140,7 @@ arranjos de disseminação entre seus usuários:
 Sobre a segunda contribuição, o sistema de reputação do \FC rege a qualidade
 das postagens e autores dentro de cadeias públicas e tem os seguintes
 objetivos:
-%
+
 \begin{itemize}
 \item Combater o excesso de conteúdo restringindo o número de postagens por autor.
 \item Destacar o conteúdo de qualidade com um mecanismo de \emph{likes \& dislikes}.
@@ -148,7 +148,7 @@ objetivos:
       prévia de autores e removendo postagens com proporção muito baixa entre
       likes e dislikes.
 \end{itemize}
-%
+
 O código fonte, documentação e vídeos introdutórios sobre o \FC estão
 disponíveis em \url{https://github.com/Freechains/README}.
 %A ferramenta pode ser demonstrada em um vídeo pré-gravado com a simulação de
@@ -209,11 +209,11 @@ notícias falsas, conteúdo legal e etc.
 
 %\subsection{Protocolos e Aplicações Federadas}
 
-Em protocolos federados, múltiplos servidores se sincronizam para permitir a
-comunicação externa entre seus usuários, mas a identidade de um usuário ainda é
-atrelada a um servidor específico.
+Em protocolos federados, múltiplos servidores se sincronizam para que usuários
+externa se comuniquem, mas a identidade de um usuário ainda é atrelada a um
+servidor específico.
 Todo conteúdo poder ser gerenciado localmente nas instâncias da federação e a
-sincronização externa é um passo em separado, mas que não é necessário para o
+sincronização é um passo em separado, mas que não é necessário para o
 funcionamento local.
 %
 O serviço de e-mail (SMTP) é provavelmente o protocolo federado mais popular e
@@ -403,7 +403,7 @@ efetuados remotamente através do cliente \texttt{freechains}.
 Isso permite compartilhar um par da rede entre múltiplos clientes, por exemplo,
 um desktop e um celular.
 \end{comment}
-%
+
 A sequência de comandos a seguir ilustra o funcionamento básico do \FC:
 
 {\footnotesize
@@ -460,11 +460,10 @@ ainda não foram lidas.
 Esse controle deve ser feito pelo usuário local, ou seja, este deve manter uma
 lista dos seus últimos blocos lidos e passá-los para o \texttt{traverse} que
 irá retornar os blocos recebidos ainda mais novos.
-Inicialmente, usamos a identificação do bloco gênesis como âncora, já que
-nenhum bloco ainda foi lido pelo usuário.
-Em seguida, é possível usar o comando \texttt{heads} para identificar os blocos
-mais novos na cabeça do grafo (que foram os lidos agora) e usá-los como âncora
-na próxima varredura.
+Inicialmente, usamos o bloco gênesis como âncora, já que nenhum bloco foi lido
+pelo usuário.
+Em seguida, o comando \texttt{heads} identifica os blocos mais recentes na
+cabeça do grafo (últimos ligos) e usá-los como âncora na próxima varredura.
 %
 Uma outra forma é checar o conteúdo em tempo real através do comando
 \texttt{listen}:
@@ -487,11 +486,10 @@ Os comandos \texttt{send} e \texttt{recv} devem ser executados para cada cadeia
 e para cada par da rede de interesse.
 Por exemplo, se o usuário segue 10 cadeias e se liga a 5 pares, os comandos
 deverão ser executados 100 vezes a cada sincronização ($2\times10\times5$).
-O \FC inclui uma ferramenta para automatizar o processo inteiro de
-sincronização.
-É possível registrar pares e cadeias e a ferramenta usa internamente os
-comandos \texttt{listen}, \texttt{send} e \texttt{recv} para se sincronizar
-assim que uma nova mensagem é postada ou recebida.
+O \FC inclui uma ferramenta para automatizar o processo inteiro, permitindo
+registrar pares e cadeias para se sincronizar assim que uma nova mensagem é
+postada ou recebida.
+%A ferramenta usa internamente os comandos \texttt{listen}, \texttt{send} e \texttt{recv} 
 
 Um bloco é uma estrutura de dados que persiste uma única mensagem na cadeia.
 Ele se encadeia às postagens anteriores e é encadeado pelas próximas postagens.
@@ -520,16 +518,15 @@ mostra a representação interna de um bloco com quatro campos enumerados:
 \label{fig.block}
 \end{figure}
 
-O encadeamento dos blocos forma um grafo direcionado acíclico que é imune a
+O encadeamento dos blocos forma um grafo direcionado acíclico imune a
 modificações (\emph{Merkle DAG}).
-Ao se criar um novo bloco, calcula-se o hash dos seus metadados, que por sua
-vez incluem os hashes da mensagem em si e dos blocos anteriores.
-Esse novo hash identifica o bloco em todas as operações, inclusive nos elos dos
-próximos blocos, e pode a qualquer momento ser recalculado para verificar se os
-dados sofreram modificações.
+Ao se criar um bloco, calcula-se o hash dos seus metadados, que por sua vez
+incluem os hashes da mensagem em si e dos blocos anteriores.
+Esse novo hash identifica o bloco univocamente e pode ser recalculado a
+qualquer momento para verificar se os dados sofreram modificações.
 Como os elos anteriores também são identificados da mesma forma, o grafo pode
-ser verificado até o seu gênesis, cujo hash depende somente dos parâmetros da
-cadeia, sendo igualmente verificável.
+ser verificado até o seu gênesis (cujo hash depende somente dos parâmetros da
+cadeia).
 
 \subsection{Arranjos de Disseminação de Conteúdo}
 
@@ -601,16 +598,15 @@ $ freechains chain "@EB172E..." post inline "Bom Dia!" --sign=96700A...
 
 Fóruns públicos descentralizados são um convite ao abuso por parte de usuários
 maliciosos com SPAM, notícias falsas e conteúdo ilícito.
-O sistema de reputação do \FC permite que somente usuários com reputação prévia
-postem conteúdo novo em uma cadeia.
-Caso contrário, a postagem fica retida no par de origem e precisa ser aprovada
-por algum usuário com reputação para ser disseminada na rede.
-Cada cadeia é controlada por um sistema autônomo que contabiliza a quantidade
-de likes e dislikes a autores e postagens.
+Para mitigar o abuso, o sistema de reputação do \FC contabiliza a quantidade de
+likes e dislikes a autores e postagens e permite que somente usuários com
+reputação prévia postem conteúdo novo.
+Postagens de autores sem reputação ficam retidas e precisam de aprovação de
+usuários com reputação.
 Como cada cadeia é independente, a reputação de um autor pode variar entre
 elas.
-A unidade de reputação é conhecida como $rep$ e pode ser gerada, consumida e
-transferida de diversas formas:
+A unidade de reputação, conhecida como $rep$, funciona da seguinte forma:
+%pode ser gerada, consumida e transferida de diversas formas:
 
 \begin{enumerate}
 \item Geração:
@@ -648,12 +644,13 @@ transferida de diversas formas:
     \end{enumerate}
 \end{enumerate}
 
-A primeira regra de geração de $reps$ (regra~\texttt{1.a}) é essencial para
-fazer o ``bootstrap'' de uma cadeia, uma vez que seria impossível realizar
+A primeira regra de geração de $reps$ (regra~\texttt{1.a}) é essencial,
+% para fazer o ``bootstrap'' de uma cadeia,
+uma vez que seria impossível realizar
 postagens se ninguém possui reputação nenhuma (regra~\texttt{4.a}).
 Assim, o autor da primeira postagem molda a cultura inicial da cadeia ao
 transferir sua reputação a outros autores, que por sua vez transferem a outros
-autores, expandindo a comunidade em alguma direção.
+autores, expandindo a comunidade.
 %
 Note que cadeias de mesmo nome mas com primeiros autores diferentes são
 incompatíveis e o protocolo se recusa a sincronizá-las.
@@ -662,7 +659,7 @@ seguem uma cadeia de nome usual (ex., \texttt{\#computacao}) e, de algum jeito,
 acabam se unindo através de um par em comum.
 
 Os comandos de \texttt{like} e \texttt{dislike} atuam sobre uma postagem já
-existente na cadeia:
+existente:
 
 {\footnotesize
 \begin{verbatim}
@@ -685,24 +682,24 @@ $ freechains chain "#chat" reps 2_12AB5C...
 
 A qualidade das postagens é subjetiva e cabe aos usuários as julgarem com
 likes, dislikes ou simples abstenções.
-Um usuário pode desgostar de uma postagem por considerá-la ofensiva ou por
-simples desacordo.
+%Um usuário pode desgostar de uma postagem por considerá-la ofensiva ou por
+%simples desacordo.
 Por um lado, como os $reps$ são finitos, os usuários devem ponderar e evitar o
 seu gasto indiscriminado.
 Por outro lado, os $reps$ também expiram após 3 meses (regra~\texttt{4.c}),
 então os usuários tem incentivos para cooperar com a qualidade das cadeias.
-Um conteúdo pode ser banido quando o número de dislikes supera em muito o
-número de likes (regra~\texttt{3.b}).
-Considerando que os $reps$ são escassos, o banimento de postagens não tem o
-objetivo de eliminar discordâncias de opinião, mas sim de evitar a atuação de
-usuários maliciosos.
+%Um conteúdo pode ser banido quando o número de dislikes supera em muito o
+%número de likes (regra~\texttt{3.b}).
+Considerando que os $reps$ são escassos, o banimento de postagens
+(regra~\texttt{3.b}) não tem o objetivo de eliminar discordâncias de opinião,
+mas sim de evitar a atuação de usuários maliciosos.
 
 Um bloco com um conteúdo banido tem que ser mantido no grafo da cadeia, já que
 a integridade do \FC depende da imutabilidade do grafo.
 Assim, o que deixa de ser retransmitido é o conteúdo do bloco com a mensagem em
 si.
 Note que nada impede que um bloco com conteúdo banido volte a ser retransmitido
-caso recebe likes posteriores.
+caso receba likes posteriores.
 Por exemplo, uma parte da rede com diversos likes ficou desconectada por um
 tempo e ao retornar equilibrou a reputação do bloco.
 
@@ -725,7 +722,7 @@ primeiro autor se torna insignificante com o passar do tempo.
 A economia também depende muito da quantidade de autores ativos, uma vez que
 a geração de $reps$ por autor é limitada a $1$ por dia.
 Esse mecanismo incentiva o acolhimento de novos autores, ao mesmo tempo que
-desincentiva dislikes pois estes drenam $2~reps$ da economia para o limbo
+desincentiva dislikes pois estes drenam $2~reps$ da economia
 (regra~\texttt{3.b}).
 Por um lado, esse desincentivo contribui para discussões com um nível razoável
 de desacordo, pois evita o colapso da cadeia com um surto de dislikes.
@@ -739,32 +736,30 @@ pouco contribuíram podem ser banidos rapidamente da cadeia com poucos dislikes
 O \FC é um protocolo peer-to-peer para disseminação de conteúdo com duas
 contribuições principais.
 A primeira é um protocolo mínimo para múltiplos arranjos de disseminação:
-arranjos públicos \Xon e \Xno, arranjos privados \Xoo, \Xnn e \Xo, e arranjos
-públicos \Xnn.
+arranjos públicos \Xon, \Xno e \Xnn, e arranjos privados \Xoo, \Xnn e \Xo.
 A segunda é um sistema de reputação autônomo e descentralizado para combater
 o abuso e destacar conteúdo de qualidade.
 O \FC pode ser operado pela linha de comando, por uma API em Kotlin ou ainda
 via sockets por um protocolo textual.
 
 Em testes inicias, simulamos a execução de diversos pares em uma mesma máquina
-para verificar a corretude e escalabilidade do protocolo.
+para verificar a escalabilidade do protocolo.
 Simulamos uma topologia com 21 pares, cada um conectado de 1 a 4 outros nós,
 com diversos ciclos e caminho máximo de 10 saltos.
 Executamos 2 aplicações simultâneas em cada par, uma com mensagens curtas e
 pouco espaçadas no tempo para simular uma aplicação de chat (50 bytes a cada 20
 segundos, em média) e outra com mensagens longas e espaçadas para simular uma
-aplicação estilo \emph{Instagram} (5 megabytes a cada 5 horas, em média).
+aplicação estilo \emph{Instagram} (5MB a cada 5h, em média).
 Verificamos que nos testes os pares chegam ao mesmo estado final sem perda de
 mensagens e com performance adequada.
 Essas duas aplicações simulam os arranjos públicos \Xnn e \Xon,
 respectivamente.
 
 Ainda não temos uma avaliação da eficácia do sistema de reputação, uma vez que
-ele depende da interação subjetiva entre humanos nas cadeias de conteúdo, o que
-não permite uma simulação automatizada.
-Pretendemos desenvolver aplicações mais reais, tais como um chat e um wiki
-distribuído para analisar qualitativamente a evolução da reputação dos autores
-e postagens.
+ele depende da interação subjetiva entre humanos, o que não permite uma
+simulação automatizada.
+Pretendemos desenvolver aplicações tais como um chat e um wiki distribuído para
+analisar qualitativamente a evolução da reputação dos autores e postagens.
 
 \bibliographystyle{sbc}
 \bibliography{sbc-template}
